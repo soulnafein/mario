@@ -6,21 +6,13 @@ import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Time exposing (Time)
+import Models.Entity exposing (Entity)
+import Models.Mario as Mario
+import Messages exposing (Msg(..))
+import Models.Entity exposing (Direction(..))
 
 
 ---- MODEL ----
-
-
-type alias Entity =
-    { x : Float
-    , y : Float
-    , direction : Direction
-    }
-
-
-type Direction
-    = Left
-    | Right
 
 
 type alias Model =
@@ -51,12 +43,6 @@ init flags =
 ---- UPDATE ----
 
 
-type Msg
-    = KeyDown KeyCode
-    | KeyUp KeyCode
-    | TimeUpdate Time
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -65,7 +51,7 @@ update msg model =
                 updatedModel =
                     { model | elapsedTime = model.elapsedTime + (dt / 1000) }
             in
-                ( { updatedModel | mario = moveMario dt model.keyPressed model.mario }, Cmd.none )
+                ( { updatedModel | mario = Mario.move dt model.keyPressed model.mario }, Cmd.none )
 
         KeyDown keyCode ->
             ( { model | keyPressed = toString keyCode }, Cmd.none )
@@ -91,52 +77,7 @@ view model =
                 , height "100%"
                 , viewBox "0 0 640 400"
                 ]
-                [ drawMario model.mario model.charactersPath ]
-            ]
-
-
-moveMario : Time -> String -> Entity -> Entity
-moveMario dt keyPressed mario =
-    let
-        leftArrow =
-            "37"
-
-        rightArrow =
-            "39"
-    in
-        if keyPressed == leftArrow then
-            { mario | x = mario.x - dt / 10, direction = Left }
-        else if keyPressed == rightArrow then
-            { mario | x = mario.x + dt / 10, direction = Right }
-        else
-            mario
-
-
-drawMario : Entity -> String -> Svg Msg
-drawMario mario spritesPath =
-    let
-        spriteWidth =
-            16
-
-        spriteHeight =
-            16
-
-        marioLeftSprite =
-            "222 44 16 16"
-
-        marioRightSprite =
-            "276 44 16 16"
-
-        spritePosition =
-            case mario.direction of
-                Left ->
-                    marioLeftSprite
-
-                Right ->
-                    marioRightSprite
-    in
-        svg [ x (toString mario.x), y (toString mario.y), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
-            [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
+                [ Mario.draw model.mario model.charactersPath ]
             ]
 
 

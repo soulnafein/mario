@@ -5,6 +5,7 @@ type alias Entity =
     { x : Float
     , y : Float
     , direction : Direction
+    , horizontalVelocity : Float
     }
 
 

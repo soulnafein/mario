@@ -32,7 +32,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { charactersPath = flags.charactersPath
       , elapsedTime = 0
-      , mario = { x = 0, y = 0, direction = Left }
+      , mario = Mario.create
       , keyPressed = "Nothing pressed"
       }
     , Cmd.none

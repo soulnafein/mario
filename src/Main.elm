@@ -5,11 +5,9 @@ import Svg.Attributes exposing (..)
 import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Time exposing (Time)
-import Models.Entity exposing (Entity)
 import Models.Mario as Mario
+import Models.Mario exposing (Direction(..))
 import Messages exposing (Msg(..))
-import Models.Entity exposing (Direction(..))
 
 
 ---- MODEL ----
@@ -18,7 +16,7 @@ import Models.Entity exposing (Direction(..))
 type alias Model =
     { charactersPath : String
     , elapsedTime : Float
-    , mario : Entity
+    , mario : Mario.Mario
     , keyPressed : String
     }
 
@@ -47,17 +45,34 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         TimeUpdate dt ->
+            ( { model | mario = Mario.move (dt / 1000) model.keyPressed model.mario }, Cmd.none )
+
+        KeyChanged isPressed keyCode ->
             let
-                updatedModel =
-                    { model | elapsedTime = model.elapsedTime + (dt / 1000) }
+                mario =
+                    model.mario
+
+                updatedMario =
+                    case keyCode of
+                        37 ->
+                            Mario.updateLeftPressed isPressed mario
+
+                        39 ->
+                            Mario.updateRightPressed isPressed mario
+
+                        90 ->
+                            Mario.updateJumpPressed isPressed mario
+
+                        _ ->
+                            mario
+
+                keyPressed =
+                    if isPressed then
+                        toString keyCode
+                    else
+                        "N/A"
             in
-                ( { updatedModel | mario = Mario.move dt model.keyPressed model.mario }, Cmd.none )
-
-        KeyDown keyCode ->
-            ( { model | keyPressed = toString keyCode }, Cmd.none )
-
-        KeyUp keyCode ->
-            ( { model | keyPressed = "Nothing pressed" }, Cmd.none )
+                ( { model | mario = updatedMario, keyPressed = keyPressed }, Cmd.none )
 
 
 
@@ -85,8 +100,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ AnimationFrame.diffs TimeUpdate
-        , Keyboard.downs KeyDown
-        , Keyboard.ups KeyUp
+        , Keyboard.downs (KeyChanged True)
+        , Keyboard.ups (KeyChanged False)
         ]
 
 

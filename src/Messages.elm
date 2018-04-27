@@ -5,6 +5,5 @@ import Keyboard exposing (KeyCode)
 
 
 type Msg
-    = KeyDown KeyCode
-    | KeyUp KeyCode
+    = KeyChanged Bool KeyCode
     | TimeUpdate Time

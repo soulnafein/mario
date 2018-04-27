@@ -1,6 +1,5 @@
-module Models.Mario exposing (move, draw, create)
+module Models.Mario exposing (..)
 
-import Models.Entity exposing (Entity, Direction(..))
 import Time exposing (Time)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -8,65 +7,160 @@ import Svg
 import Messages exposing (Msg)
 
 
-create : Entity
+type alias Mario =
+    { x : Float
+    , y : Float
+    , direction : Direction
+    , horizontalVelocity : Float
+    , verticalVelocity : Float
+    , leftPressed : Bool
+    , rightPressed : Bool
+    , jumpPressed : Bool
+    }
+
+
+type Direction
+    = Left
+    | Right
+
+
+create : Mario
 create =
-    { x = 320, y = 200, direction = Left, horizontalVelocity = 0 }
+    { x = 320
+    , y = 200
+    , direction = Left
+    , horizontalVelocity = 0
+    , verticalVelocity = 0
+    , leftPressed = False
+    , rightPressed = False
+    , jumpPressed = False
+    }
 
 
-move : Time -> String -> Entity -> Entity
+updateLeftPressed : Bool -> Mario -> Mario
+updateLeftPressed isPressed mario =
+    { mario | leftPressed = isPressed }
+
+
+updateRightPressed : Bool -> Mario -> Mario
+updateRightPressed isPressed mario =
+    { mario | rightPressed = isPressed }
+
+
+updateJumpPressed : Bool -> Mario -> Mario
+updateJumpPressed isPressed mario =
+    { mario | jumpPressed = isPressed }
+
+
+move : Time -> String -> Mario -> Mario
 move dt keyPressed mario =
-    applyVelocity keyPressed mario
+    mario
+        |> applyLeftMovement dt
+        |> applyRightMovement dt
+        |> applyJump dt
         |> applyFriction dt
+        |> applyGravity dt
         |> updatePosition dt
+        |> checkCollisions
 
 
-applyFriction : Time -> Entity -> Entity
+applyFriction : Time -> Mario -> Mario
 applyFriction dt mario =
     let
         horizontalVelocity =
             if mario.horizontalVelocity <= 0 then
                 0
             else
-                mario.horizontalVelocity - (30 * (dt / 100))
+                mario.horizontalVelocity - (300 * dt)
     in
         { mario | horizontalVelocity = horizontalVelocity }
 
 
-updatePosition : Time -> Entity -> Entity
+applyGravity : Time -> Mario -> Mario
+applyGravity dt mario =
+    let
+        gravity =
+            400
+    in
+        { mario | verticalVelocity = mario.verticalVelocity - (gravity * dt) }
+
+
+checkCollisions : Mario -> Mario
+checkCollisions mario =
+    if (mario.y + 16) > 320 then
+        { mario | verticalVelocity = 0, y = 320 - 16 }
+    else
+        mario
+
+
+updatePosition : Time -> Mario -> Mario
 updatePosition dt mario =
     let
-        movementAmount =
-            mario.horizontalVelocity * (dt / 1000)
+        horizontalMovementAmount =
+            mario.horizontalVelocity * dt
 
         x =
             case mario.direction of
                 Left ->
-                    mario.x - movementAmount
+                    mario.x - horizontalMovementAmount
 
                 Right ->
-                    mario.x + movementAmount
+                    mario.x + horizontalMovementAmount
+
+        verticalMovementAmount =
+            mario.verticalVelocity * dt
+
+        y =
+            mario.y - verticalMovementAmount
     in
-        { mario | x = x }
+        { mario | x = x, y = y }
 
 
-applyVelocity : String -> Entity -> Entity
-applyVelocity keyPressed mario =
-    let
-        leftArrow =
-            "37"
-
-        rightArrow =
-            "39"
-    in
-        if keyPressed == leftArrow then
-            { mario | horizontalVelocity = 100, direction = Left }
-        else if keyPressed == rightArrow then
-            { mario | horizontalVelocity = 100, direction = Right }
-        else
-            mario
+applyLeftMovement : Time -> Mario -> Mario
+applyLeftMovement dt mario =
+    if mario.leftPressed then
+        mario
+            |> updateHorizontalVelocity 100
+            |> changeDirection Left
+    else
+        mario
 
 
-draw : Entity -> String -> Svg Msg
+applyRightMovement : Time -> Mario -> Mario
+applyRightMovement dt mario =
+    if mario.rightPressed then
+        mario
+            |> updateHorizontalVelocity 100
+            |> changeDirection Right
+    else
+        mario
+
+
+applyJump : Time -> Mario -> Mario
+applyJump dt mario =
+    if mario.jumpPressed then
+        mario
+            |> updateVerticalVelocity 100
+    else
+        mario
+
+
+changeDirection : Direction -> Mario -> Mario
+changeDirection direction mario =
+    { mario | direction = direction }
+
+
+updateHorizontalVelocity : Float -> Mario -> Mario
+updateHorizontalVelocity velocity mario =
+    { mario | horizontalVelocity = velocity }
+
+
+updateVerticalVelocity : Float -> Mario -> Mario
+updateVerticalVelocity velocity mario =
+    { mario | verticalVelocity = velocity }
+
+
+draw : Mario -> String -> Svg Msg
 draw mario spritesPath =
     let
         spriteWidth =

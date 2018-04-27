@@ -6,6 +6,7 @@ import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Models.Mario as Mario
+import Models.Keys as Keys
 import Models.Mario exposing (Direction(..))
 import Messages exposing (Msg(..))
 
@@ -15,9 +16,8 @@ import Messages exposing (Msg(..))
 
 type alias Model =
     { charactersPath : String
-    , elapsedTime : Float
     , mario : Mario.Mario
-    , keyPressed : String
+    , keys : Keys.Keys
     }
 
 
@@ -29,9 +29,8 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { charactersPath = flags.charactersPath
-      , elapsedTime = 0
       , mario = Mario.create
-      , keyPressed = "Nothing pressed"
+      , keys = Keys.create
       }
     , Cmd.none
     )
@@ -45,26 +44,26 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         TimeUpdate dt ->
-            ( { model | mario = Mario.move (dt / 1000) model.keyPressed model.mario }, Cmd.none )
+            ( { model | mario = Mario.move (dt / 1000) model.keys model.mario }, Cmd.none )
 
         KeyChanged isPressed keyCode ->
             let
-                mario =
-                    model.mario
+                keys =
+                    model.keys
 
-                updatedMario =
+                updatedKeys =
                     case keyCode of
                         37 ->
-                            Mario.updateLeftPressed isPressed mario
+                            { keys | leftPressed = isPressed }
 
                         39 ->
-                            Mario.updateRightPressed isPressed mario
+                            { keys | rightPressed = isPressed }
 
                         90 ->
-                            Mario.updateJumpPressed isPressed mario
+                            { keys | jumpPressed = isPressed }
 
                         _ ->
-                            mario
+                            keys
 
                 keyPressed =
                     if isPressed then
@@ -72,7 +71,7 @@ update msg model =
                     else
                         "N/A"
             in
-                ( { model | mario = updatedMario, keyPressed = keyPressed }, Cmd.none )
+                ( { model | keys = { updatedKeys | keyPressed = keyPressed } }, Cmd.none )
 
 
 
@@ -81,19 +80,15 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    let
-        frame =
-            (round model.elapsedTime) % 10
-    in
-        Html.div []
-            [ text model.keyPressed
-            , svg
-                [ width "100%"
-                , height "100%"
-                , viewBox "0 0 640 400"
-                ]
-                [ Mario.draw model.mario model.charactersPath ]
+    Html.div []
+        [ text model.keys.keyPressed
+        , svg
+            [ width "100%"
+            , height "100%"
+            , viewBox "0 0 640 400"
             ]
+            [ Mario.draw model.mario model.charactersPath ]
+        ]
 
 
 subscriptions : Model -> Sub Msg

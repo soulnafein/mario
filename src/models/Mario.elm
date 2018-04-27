@@ -1,5 +1,6 @@
 module Models.Mario exposing (..)
 
+import Models.Keys exposing (Keys)
 import Time exposing (Time)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -13,9 +14,6 @@ type alias Mario =
     , direction : Direction
     , horizontalVelocity : Float
     , verticalVelocity : Float
-    , leftPressed : Bool
-    , rightPressed : Bool
-    , jumpPressed : Bool
     }
 
 
@@ -31,33 +29,15 @@ create =
     , direction = Left
     , horizontalVelocity = 0
     , verticalVelocity = 0
-    , leftPressed = False
-    , rightPressed = False
-    , jumpPressed = False
     }
 
 
-updateLeftPressed : Bool -> Mario -> Mario
-updateLeftPressed isPressed mario =
-    { mario | leftPressed = isPressed }
-
-
-updateRightPressed : Bool -> Mario -> Mario
-updateRightPressed isPressed mario =
-    { mario | rightPressed = isPressed }
-
-
-updateJumpPressed : Bool -> Mario -> Mario
-updateJumpPressed isPressed mario =
-    { mario | jumpPressed = isPressed }
-
-
-move : Time -> String -> Mario -> Mario
-move dt keyPressed mario =
+move : Time -> Keys -> Mario -> Mario
+move dt keys mario =
     mario
-        |> applyLeftMovement dt
-        |> applyRightMovement dt
-        |> applyJump dt
+        |> applyLeftMovement dt keys
+        |> applyRightMovement dt keys
+        |> applyJump dt keys
         |> applyFriction dt
         |> applyGravity dt
         |> updatePosition dt
@@ -116,9 +96,9 @@ updatePosition dt mario =
         { mario | x = x, y = y }
 
 
-applyLeftMovement : Time -> Mario -> Mario
-applyLeftMovement dt mario =
-    if mario.leftPressed then
+applyLeftMovement : Time -> Keys -> Mario -> Mario
+applyLeftMovement dt keys mario =
+    if keys.leftPressed then
         mario
             |> updateHorizontalVelocity 100
             |> changeDirection Left
@@ -126,9 +106,9 @@ applyLeftMovement dt mario =
         mario
 
 
-applyRightMovement : Time -> Mario -> Mario
-applyRightMovement dt mario =
-    if mario.rightPressed then
+applyRightMovement : Time -> Keys -> Mario -> Mario
+applyRightMovement dt keys mario =
+    if keys.rightPressed then
         mario
             |> updateHorizontalVelocity 100
             |> changeDirection Right
@@ -136,9 +116,9 @@ applyRightMovement dt mario =
         mario
 
 
-applyJump : Time -> Mario -> Mario
-applyJump dt mario =
-    if mario.jumpPressed then
+applyJump : Time -> Keys -> Mario -> Mario
+applyJump dt keys mario =
+    if keys.jumpPressed then
         mario
             |> updateVerticalVelocity 100
     else

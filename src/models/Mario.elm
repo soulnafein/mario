@@ -47,12 +47,8 @@ jumpSpeed =
     200
 
 
-jumpSpeedAtApex =
-    70
-
-
 gravity =
-    500
+    1000
 
 
 jumpLimit =
@@ -170,10 +166,7 @@ applyJump dt keys mario =
             mario.verticalVelocity
 
         newVelocity =
-            if mario.jumpDistance > jumpApex then
-                jumpSpeedAtApex
-            else
-                jumpSpeed
+            (1 / logBase 5 (mario.jumpDistance + 2)) * jumpSpeed
     in
         if keys.jumpPressed && not (mario.action == Falling) then
             { mario | action = Jumping }
@@ -232,7 +225,7 @@ draw mario spritesPath =
                     getFramePosition sprites 1
     in
         svg [ x (toString (round mario.x)), y (toString (round mario.y)), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
-            [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
+            [ image [ imageRendering "pixelated", x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
             ]
 
 

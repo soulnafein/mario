@@ -6,7 +6,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "create-elm-app": "^1.10.3"
+    "create-elm-app": "^1.10.3",
+    "gh-pages": "^1.1.0"
   },
   "scripts": {
     "start": "elm-app start"

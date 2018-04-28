@@ -231,7 +231,7 @@ draw mario spritesPath =
                 Falling ->
                     getFramePosition sprites 1
     in
-        svg [ x (toString mario.x), y (toString mario.y), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
+        svg [ x (toString (round mario.x)), y (toString (round mario.y)), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
             [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
             ]
 

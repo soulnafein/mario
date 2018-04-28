@@ -6,20 +6,18 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg
 import Messages exposing (Msg)
+import Array
 
 
 type alias Mario =
     { x : Float
     , y : Float
     , direction : Direction
+    , action : Action
     , horizontalVelocity : Float
     , verticalVelocity : Float
+    , jumpDistance : Float
     }
-
-
-type Direction
-    = Left
-    | Right
 
 
 create : Mario
@@ -27,9 +25,50 @@ create =
     { x = 320
     , y = 200
     , direction = Left
+    , action = Standing
     , horizontalVelocity = 0
     , verticalVelocity = 0
+    , jumpDistance = 0
     }
+
+
+type Action
+    = Jumping
+    | Standing
+    | Falling
+
+
+type Direction
+    = Left
+    | Right
+
+
+jumpSpeed =
+    200
+
+
+jumpSpeedAtApex =
+    70
+
+
+gravity =
+    500
+
+
+jumpLimit =
+    50
+
+
+jumpApex =
+    jumpLimit * 0.75
+
+
+walkingSpeed =
+    100
+
+
+friction =
+    300
 
 
 move : Time -> Keys -> Mario -> Mario
@@ -41,6 +80,7 @@ move dt keys mario =
         |> applyFriction dt
         |> applyGravity dt
         |> updatePosition dt
+        |> applyJumpLimit
         |> checkCollisions
 
 
@@ -51,24 +91,28 @@ applyFriction dt mario =
             if mario.horizontalVelocity <= 0 then
                 0
             else
-                mario.horizontalVelocity - (300 * dt)
+                mario.horizontalVelocity - (friction * dt)
     in
         { mario | horizontalVelocity = horizontalVelocity }
 
 
+applyJumpLimit : Mario -> Mario
+applyJumpLimit mario =
+    if mario.jumpDistance > jumpLimit then
+        { mario | verticalVelocity = 0, action = Falling }
+    else
+        mario
+
+
 applyGravity : Time -> Mario -> Mario
 applyGravity dt mario =
-    let
-        gravity =
-            400
-    in
-        { mario | verticalVelocity = mario.verticalVelocity - (gravity * dt) }
+    { mario | verticalVelocity = mario.verticalVelocity - (gravity * dt) }
 
 
 checkCollisions : Mario -> Mario
 checkCollisions mario =
     if (mario.y + 16) > 320 then
-        { mario | verticalVelocity = 0, y = 320 - 16 }
+        { mario | verticalVelocity = 0, y = 320 - 16, jumpDistance = 0, action = Standing }
     else
         mario
 
@@ -92,15 +136,18 @@ updatePosition dt mario =
 
         y =
             mario.y - verticalMovementAmount
+
+        jumpDistance =
+            mario.jumpDistance + verticalMovementAmount
     in
-        { mario | x = x, y = y }
+        { mario | x = x, y = y, jumpDistance = jumpDistance }
 
 
 applyLeftMovement : Time -> Keys -> Mario -> Mario
 applyLeftMovement dt keys mario =
     if keys.leftPressed then
         mario
-            |> updateHorizontalVelocity 100
+            |> updateHorizontalVelocity walkingSpeed
             |> changeDirection Left
     else
         mario
@@ -110,7 +157,7 @@ applyRightMovement : Time -> Keys -> Mario -> Mario
 applyRightMovement dt keys mario =
     if keys.rightPressed then
         mario
-            |> updateHorizontalVelocity 100
+            |> updateHorizontalVelocity walkingSpeed
             |> changeDirection Right
     else
         mario
@@ -118,11 +165,21 @@ applyRightMovement dt keys mario =
 
 applyJump : Time -> Keys -> Mario -> Mario
 applyJump dt keys mario =
-    if keys.jumpPressed then
-        mario
-            |> updateVerticalVelocity 100
-    else
-        mario
+    let
+        velocity =
+            mario.verticalVelocity
+
+        newVelocity =
+            if mario.jumpDistance > jumpApex then
+                jumpSpeedAtApex
+            else
+                jumpSpeed
+    in
+        if keys.jumpPressed && not (mario.action == Falling) then
+            { mario | action = Jumping }
+                |> updateVerticalVelocity newVelocity
+        else
+            mario
 
 
 changeDirection : Direction -> Mario -> Mario
@@ -149,19 +206,27 @@ draw mario spritesPath =
         spriteHeight =
             16
 
-        marioLeftSprite =
-            "222 44 16 16"
+        leftSprites =
+            Array.fromList [ "222 44 16 16", "222 44 16 16" ]
 
-        marioRightSprite =
-            "275 44 16 16"
+        rightSprites =
+            Array.fromList [ "275 44 16 16", "222 44 16 16" ]
 
-        spritePosition =
+        sprites =
             case mario.direction of
                 Left ->
-                    marioLeftSprite
+                    leftSprites
 
                 Right ->
-                    marioRightSprite
+                    rightSprites
+
+        spritePosition =
+            case mario.action of
+                Standing ->
+                    Array.get 0 sprites |> Maybe.withDefault ""
+
+                _ ->
+                    Array.get 0 sprites |> Maybe.withDefault ""
     in
         svg [ x (toString mario.x), y (toString mario.y), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
             [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []

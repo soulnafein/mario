@@ -6,7 +6,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg
 import Messages exposing (Msg)
-import Array
+import Array exposing (Array)
 
 
 type alias Mario =
@@ -207,10 +207,10 @@ draw mario spritesPath =
             16
 
         leftSprites =
-            Array.fromList [ "222 44 16 16", "222 44 16 16" ]
+            Array.fromList [ "222 44 16 16", "142 44 16 16" ]
 
         rightSprites =
-            Array.fromList [ "275 44 16 16", "222 44 16 16" ]
+            Array.fromList [ "275 44 16 16", "355 44 16 16" ]
 
         sprites =
             case mario.direction of
@@ -223,11 +223,19 @@ draw mario spritesPath =
         spritePosition =
             case mario.action of
                 Standing ->
-                    Array.get 0 sprites |> Maybe.withDefault ""
+                    getFramePosition sprites 0
 
-                _ ->
-                    Array.get 0 sprites |> Maybe.withDefault ""
+                Jumping ->
+                    getFramePosition sprites 1
+
+                Falling ->
+                    getFramePosition sprites 1
     in
         svg [ x (toString mario.x), y (toString mario.y), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
             [ image [ x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
             ]
+
+
+getFramePosition : Array String -> Int -> String
+getFramePosition sprites frameNumber =
+    Array.get frameNumber sprites |> Maybe.withDefault ""

@@ -87,7 +87,9 @@ view model =
             , height "100%"
             , viewBox "0 0 640 400"
             ]
-            [ Mario.draw model.mario model.charactersPath ]
+            [ rect [ width "100%", height "100%", fill "black" ] []
+            , Mario.draw model.mario model.charactersPath
+            ]
         ]
 
 

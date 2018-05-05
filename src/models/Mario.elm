@@ -36,6 +36,7 @@ type Action
     = Jumping
     | Standing
     | Falling
+    | Walking
 
 
 type Direction
@@ -43,26 +44,27 @@ type Direction
     | Right
 
 
+jumpSpeed : Float
 jumpSpeed =
     200
 
 
+gravity : Float
 gravity =
     1000
 
 
+jumpLimit : Float
 jumpLimit =
     50
 
 
-jumpApex =
-    jumpLimit * 0.75
-
-
+walkingSpeed : Float
 walkingSpeed =
     100
 
 
+friction : Float
 friction =
     300
 
@@ -78,6 +80,23 @@ move dt keys mario =
         |> updatePosition dt
         |> applyJumpLimit
         |> checkCollisions
+        |> changeAction
+
+
+changeAction : Mario -> Mario
+changeAction mario =
+    let
+        action =
+            if mario.jumpDistance > 0 && mario.verticalVelocity > 0 then
+                Jumping
+            else if mario.jumpDistance > 0 && mario.verticalVelocity <= 0 then
+                Falling
+            else if mario.horizontalVelocity > 0 then
+                Walking
+            else
+                Standing
+    in
+        { mario | action = action }
 
 
 applyFriction : Time -> Mario -> Mario
@@ -95,7 +114,7 @@ applyFriction dt mario =
 applyJumpLimit : Mario -> Mario
 applyJumpLimit mario =
     if mario.jumpDistance > jumpLimit then
-        { mario | verticalVelocity = 0, action = Falling }
+        { mario | verticalVelocity = 0 }
     else
         mario
 
@@ -108,7 +127,7 @@ applyGravity dt mario =
 checkCollisions : Mario -> Mario
 checkCollisions mario =
     if (mario.y + 16) > 320 then
-        { mario | verticalVelocity = 0, y = 320 - 16, jumpDistance = 0, action = Standing }
+        { mario | verticalVelocity = 0, y = 320 - 16, jumpDistance = 0 }
     else
         mario
 
@@ -169,8 +188,7 @@ applyJump dt keys mario =
             (1 / logBase 5 (mario.jumpDistance + 2)) * jumpSpeed
     in
         if keys.jumpPressed && not (mario.action == Falling) then
-            { mario | action = Jumping }
-                |> updateVerticalVelocity newVelocity
+            mario |> updateVerticalVelocity newVelocity
         else
             mario
 
@@ -193,6 +211,15 @@ updateVerticalVelocity velocity mario =
 draw : Mario -> String -> Svg Msg
 draw mario spritesPath =
     let
+        standingAnimation =
+            0
+
+        jumpingAnimation =
+            1
+
+        walkingAnimation =
+            2
+
         spriteWidth =
             16
 
@@ -200,10 +227,24 @@ draw mario spritesPath =
             16
 
         leftSprites =
-            Array.fromList [ "222 44 16 16", "142 44 16 16" ]
+            Array.fromList
+                [ Array.fromList [ "222 44 16 16" ]
+                , Array.fromList [ "142 44 16 16" ]
+                , Array.fromList [ "206 44 16 16", "193 44 16 16", "177 44 16 16" ]
+                ]
 
         rightSprites =
-            Array.fromList [ "275 44 16 16", "355 44 16 16" ]
+            Array.fromList
+                [ Array.fromList [ "275 44 16 16" ]
+                , Array.fromList [ "355 44 16 16" ]
+                , Array.fromList [ "291 44 16 16", "304 44 16 16", "320 44 16 16" ]
+                ]
+
+        xPos =
+            round mario.x
+
+        yPos =
+            round mario.y
 
         sprites =
             case mario.direction of
@@ -216,19 +257,28 @@ draw mario spritesPath =
         spritePosition =
             case mario.action of
                 Standing ->
-                    getFramePosition sprites 0
+                    getFramePosition sprites standingAnimation 0
 
                 Jumping ->
-                    getFramePosition sprites 1
+                    getFramePosition sprites jumpingAnimation 0
 
                 Falling ->
-                    getFramePosition sprites 1
+                    getFramePosition sprites jumpingAnimation 0
+
+                Walking ->
+                    getFramePosition sprites walkingAnimation 0
     in
-        svg [ x (toString (round mario.x)), y (toString (round mario.y)), width "16px", height "16px", viewBox spritePosition, version "1.1" ]
-            [ image [ imageRendering "pixelated", x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
+        g [ (transform ("translate(" ++ toString xPos ++ " " ++ toString yPos ++ ")")) ]
+            [ svg [ x "0", y "0", width "16px", height "16px", viewBox spritePosition, version "1.1" ]
+                [ image [ imageRendering "pixelated", x "0px", y "0px", width "513px", height "401px", xlinkHref spritesPath ] []
+                ]
             ]
 
 
-getFramePosition : Array String -> Int -> String
-getFramePosition sprites frameNumber =
-    Array.get frameNumber sprites |> Maybe.withDefault ""
+getFramePosition : Array (Array String) -> Int -> Int -> String
+getFramePosition sprites animationNumber frameNumber =
+    let
+        animation =
+            Array.get animationNumber sprites |> Maybe.withDefault (Array.fromList [])
+    in
+        Array.get frameNumber animation |> Maybe.withDefault ""

@@ -81,8 +81,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ text model.keys.keyPressed
-        , svg
+        [ svg
             [ width "100%"
             , height "100%"
             , viewBox "0 0 640 400"

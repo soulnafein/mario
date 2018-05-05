@@ -84,7 +84,7 @@ view model =
         [ svg
             [ width "100%"
             , height "100%"
-            , viewBox "0 0 640 400"
+            , viewBox "0 0 256 208"
             ]
             [ rect [ width "100%", height "100%", fill "black" ] []
             , Mario.draw model.mario model.charactersPath

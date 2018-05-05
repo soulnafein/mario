@@ -17,18 +17,20 @@ type alias Mario =
     , horizontalVelocity : Float
     , verticalVelocity : Float
     , jumpDistance : Float
+    , walkingDistance : Float
     }
 
 
 create : Mario
 create =
-    { x = 320
-    , y = 200
+    { x = 0
+    , y = 0
     , direction = Left
     , action = Standing
     , horizontalVelocity = 0
     , verticalVelocity = 0
     , jumpDistance = 0
+    , walkingDistance = 0
     }
 
 
@@ -46,7 +48,7 @@ type Direction
 
 jumpSpeed : Float
 jumpSpeed =
-    200
+    350
 
 
 gravity : Float
@@ -56,7 +58,7 @@ gravity =
 
 jumpLimit : Float
 jumpLimit =
-    50
+    64
 
 
 walkingSpeed : Float
@@ -126,10 +128,14 @@ applyGravity dt mario =
 
 checkCollisions : Mario -> Mario
 checkCollisions mario =
-    if (mario.y + 16) > 320 then
-        { mario | verticalVelocity = 0, y = 320 - 16, jumpDistance = 0 }
-    else
-        mario
+    let
+        windowHeight =
+            208
+    in
+        if (mario.y + 16) > windowHeight then
+            { mario | verticalVelocity = 0, y = windowHeight - 16, jumpDistance = 0 }
+        else
+            mario
 
 
 updatePosition : Time -> Mario -> Mario
@@ -154,8 +160,14 @@ updatePosition dt mario =
 
         jumpDistance =
             mario.jumpDistance + verticalMovementAmount
+
+        walkingDistance =
+            if mario.action == Walking then
+                mario.walkingDistance + horizontalMovementAmount
+            else
+                0
     in
-        { mario | x = x, y = y, jumpDistance = jumpDistance }
+        { mario | x = x, y = y, jumpDistance = jumpDistance, walkingDistance = walkingDistance }
 
 
 applyLeftMovement : Time -> Keys -> Mario -> Mario
@@ -266,7 +278,7 @@ draw mario spritesPath =
                     getFramePosition sprites jumpingAnimation 0
 
                 Walking ->
-                    getFramePosition sprites walkingAnimation 0
+                    getFramePosition sprites walkingAnimation ((round (mario.walkingDistance / 20)) % 3)
     in
         g [ (transform ("translate(" ++ toString xPos ++ " " ++ toString yPos ++ ")")) ]
             [ svg [ x "0", y "0", width "16px", height "16px", viewBox spritePosition, version "1.1" ]

@@ -5,9 +5,10 @@ import Svg.Attributes exposing (..)
 import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Models.Mario as Mario
-import Models.Keys as Keys
-import Models.Mario exposing (Direction(..))
+import Mario as Mario
+import Keys as Keys
+import Mario exposing (Direction(..))
+import Sprites exposing (..)
 import Messages exposing (Msg(..))
 
 
@@ -18,11 +19,13 @@ type alias Model =
     { charactersPath : String
     , mario : Mario.Mario
     , keys : Keys.Keys
+    , spritesData : SpritesData
     }
 
 
 type alias Flags =
     { charactersPath : String
+    , spritesData : SpritesData
     }
 
 
@@ -31,6 +34,7 @@ init flags =
     ( { charactersPath = flags.charactersPath
       , mario = Mario.create
       , keys = Keys.create
+      , spritesData = flags.spritesData
       }
     , Cmd.none
     )
@@ -87,7 +91,7 @@ view model =
             , viewBox "0 0 256 208"
             ]
             [ rect [ width "100%", height "100%", fill "black" ] []
-            , Mario.draw model.mario model.charactersPath
+            , Mario.draw model.mario model.spritesData
             ]
         ]
 

@@ -1,4 +1,4 @@
-module Models.Keys exposing (..)
+module Keys exposing (..)
 
 
 type alias Keys =

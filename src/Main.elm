@@ -6,6 +6,7 @@ import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Mario as Mario
+import Level as Level
 import Keys as Keys
 import Sprites exposing (..)
 import Messages exposing (Msg(..))
@@ -18,12 +19,14 @@ import Data.Sprites
 type alias Model =
     { mario : Mario.Mario
     , keys : Keys.Keys
-    , spritesData : SpritesData
+    , characterSprites : CharacterSprites
+    , tileSprites : TileSprites
     }
 
 
 type alias Flags =
     { charactersPath : String
+    , tilesPath : String
     }
 
 
@@ -31,7 +34,8 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { mario = Mario.create
       , keys = Keys.create
-      , spritesData = Data.Sprites.characters flags.charactersPath
+      , characterSprites = Data.Sprites.characters flags.charactersPath
+      , tileSprites = Data.Sprites.tiles flags.tilesPath
       }
     , Cmd.none
     )
@@ -88,7 +92,8 @@ view model =
             , viewBox "0 0 256 208"
             ]
             [ rect [ width "100%", height "100%", fill "black" ] []
-            , Mario.draw model.mario model.spritesData
+            , Level.draw model.tileSprites
+            , Mario.draw model.mario model.characterSprites
             ]
         ]
 

@@ -1,10 +1,74 @@
-module Data.Sprites exposing (characters)
+module Data.Sprites exposing (characters, tiles)
 
-import Sprites exposing (SpritesData, Direction(..), Action(..))
+import Sprites exposing (CharacterSprites, TileSprites, Direction(..), Action(..))
 import Array
 
 
-characters : String -> SpritesData
+tiles : String -> TileSprites
+tiles imageUrl =
+    { imageUrl = imageUrl
+    , sprites =
+        [ { name = "ground"
+          , frames = Array.fromList [ [ 0, 0, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "sky"
+          , frames = Array.fromList [ [ 48, 368, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hill-1"
+          , frames = Array.fromList [ [ 128, 128, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hill-2"
+          , frames = Array.fromList [ [ 144, 128, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hill-3"
+          , frames = Array.fromList [ [ 160, 128, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hill-4"
+          , frames = Array.fromList [ [ 128, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hill-5"
+          , frames = Array.fromList [ [ 144, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hill-6"
+          , frames = Array.fromList [ [ 160, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "cloud-1"
+          , frames = Array.fromList [ [ 0, 320, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "cloud-2"
+          , frames = Array.fromList [ [ 16, 320, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "cloud-3"
+          , frames = Array.fromList [ [ 32, 320, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "cloud-4"
+          , frames = Array.fromList [ [ 0, 336, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "cloud-5"
+          , frames = Array.fromList [ [ 16, 336, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "cloud-6"
+          , frames = Array.fromList [ [ 32, 336, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        ]
+    }
+
+
+characters : String -> CharacterSprites
 characters imageUrl =
     { imageUrl = imageUrl
     , sprites =

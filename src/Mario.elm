@@ -2,12 +2,9 @@ module Mario exposing (..)
 
 import Keys exposing (Keys)
 import Time exposing (Time)
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg
+import Sprites exposing (CharacterSprites, drawCharacter, Direction(..), Action(..))
+import Svg exposing (Svg)
 import Messages exposing (Msg)
-import Array exposing (Array)
-import Sprites exposing (SpritesData, findFrames, Direction(..), Action(..))
 
 
 type alias Mario =
@@ -123,11 +120,11 @@ applyGravity dt mario =
 checkCollisions : Mario -> Mario
 checkCollisions mario =
     let
-        windowHeight =
-            208
+        groundY =
+            10 * 16
     in
-        if (mario.y + 16) > windowHeight then
-            { mario | verticalVelocity = 0, y = windowHeight - 16, jumpDistance = 0 }
+        if (mario.y) > groundY then
+            { mario | verticalVelocity = 0, y = groundY, jumpDistance = 0 }
         else
             mario
 
@@ -224,48 +221,13 @@ updateVerticalVelocity velocity mario =
     { mario | verticalVelocity = velocity }
 
 
-draw : Mario -> SpritesData -> Svg Msg
-draw mario spritesData =
+draw : Mario -> CharacterSprites -> Svg Msg
+draw mario characterSprites =
     let
-        standingAnimation =
-            0
-
-        jumpingAnimation =
-            1
-
-        walkingAnimation =
-            2
-
-        spriteWidth =
-            16
-
-        spriteHeight =
-            16
-
         xPos =
             round mario.x
 
         yPos =
             round mario.y
-
-        spriteViewbox =
-            findFrames "mario" mario.action mario.actionDuration mario.direction spritesData
     in
-        drawSprite xPos yPos spriteWidth spriteHeight spriteViewbox spritesData.imageUrl
-
-
-px : Int -> String
-px n =
-    (toString n) ++ "px"
-
-
-drawSprite : Int -> Int -> Int -> Int -> String -> String -> Svg Msg
-drawSprite xPos yPos spriteWidth spriteHeight spriteViewbox path =
-    svg [ x (px xPos), y (px yPos), width (px spriteWidth), height (px spriteHeight), viewBox spriteViewbox ]
-        [ image [ imageRendering "pixelated", xlinkHref path ] []
-        ]
-
-
-getFramePosition : Array String -> Int -> String
-getFramePosition animation frameNumber =
-    Array.get frameNumber animation |> Maybe.withDefault ""
+        drawCharacter xPos yPos "mario" mario.action mario.actionDuration mario.direction characterSprites

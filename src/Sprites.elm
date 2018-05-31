@@ -1,4 +1,4 @@
-module Sprites exposing (SpritesData, findAnimation)
+module Sprites exposing (SpritesData, findAnimation, Action(..), Direction(..))
 
 import Array exposing (Array)
 import List
@@ -11,23 +11,35 @@ type alias SpritesData =
 
 
 type alias CharacterSprite =
-    { action : String
+    { action : Action
     , name : String
-    , direction : String
+    , direction : Direction
     , animation : Array (List Int)
     , animationSpeed : Float
     }
 
 
-findAnimation : String -> String -> String -> Float -> SpritesData -> String
-findAnimation name action direction duration spritesData =
+type Action
+    = Jumping
+    | Standing
+    | Falling
+    | Walking
+
+
+type Direction
+    = Left
+    | Right
+
+
+findAnimation : String -> Action -> Float -> Direction -> SpritesData -> String
+findAnimation name action actionDuration direction spritesData =
     let
         sprite =
             spritesData.sprites
                 |> List.filter (\c -> c.name == name && c.action == action && c.direction == direction)
                 |> List.head
     in
-        findAnimationFrame sprite duration
+        findAnimationFrame sprite actionDuration
 
 
 findAnimationFrame : Maybe CharacterSprite -> Float -> String

@@ -7,17 +7,16 @@ import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Mario as Mario
 import Keys as Keys
-import Mario exposing (Direction(..))
 import Sprites exposing (..)
 import Messages exposing (Msg(..))
+import Data.Sprites
 
 
 ---- MODEL ----
 
 
 type alias Model =
-    { charactersPath : String
-    , mario : Mario.Mario
+    { mario : Mario.Mario
     , keys : Keys.Keys
     , spritesData : SpritesData
     }
@@ -25,16 +24,14 @@ type alias Model =
 
 type alias Flags =
     { charactersPath : String
-    , spritesData : SpritesData
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { charactersPath = flags.charactersPath
-      , mario = Mario.create
+    ( { mario = Mario.create
       , keys = Keys.create
-      , spritesData = flags.spritesData
+      , spritesData = Data.Sprites.characters flags.charactersPath
       }
     , Cmd.none
     )

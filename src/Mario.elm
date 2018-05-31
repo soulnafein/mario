@@ -7,7 +7,7 @@ import Svg.Attributes exposing (..)
 import Svg
 import Messages exposing (Msg)
 import Array exposing (Array)
-import Sprites exposing (SpritesData, findAnimation)
+import Sprites exposing (SpritesData, findAnimation, Direction(..), Action(..))
 
 
 type alias Mario =
@@ -15,6 +15,7 @@ type alias Mario =
     , y : Float
     , direction : Direction
     , action : Action
+    , actionDuration : Float
     , horizontalVelocity : Float
     , verticalVelocity : Float
     , jumpDistance : Float
@@ -26,23 +27,12 @@ create =
     { x = 0
     , y = 0
     , direction = Left
-    , action = Standing 0
+    , action = Standing
+    , actionDuration = 0
     , horizontalVelocity = 0
     , verticalVelocity = 0
     , jumpDistance = 0
     }
-
-
-type Action
-    = Jumping Float
-    | Standing Float
-    | Falling Float
-    | Walking Float
-
-
-type Direction
-    = Left
-    | Right
 
 
 jumpSpeed : Float
@@ -87,22 +77,22 @@ move dt keys mario =
 changeAction : Mario -> Mario
 changeAction mario =
     let
-        action =
+        ( action, duration ) =
             if mario.jumpDistance > 0 && mario.verticalVelocity > 0 then
-                Jumping 0
+                ( Jumping, 0 )
             else if mario.jumpDistance > 0 && mario.verticalVelocity <= 0 then
-                Falling 0
+                ( Falling, 0 )
             else if mario.horizontalVelocity > 0 then
                 case mario.action of
-                    Walking d ->
-                        mario.action
+                    Walking ->
+                        ( mario.action, mario.actionDuration )
 
                     _ ->
-                        Walking 0
+                        ( Walking, 0 )
             else
-                Standing 0
+                ( Standing, 0 )
     in
-        { mario | action = action }
+        { mario | action = action, actionDuration = duration }
 
 
 applyFriction : Time -> Mario -> Mario
@@ -165,15 +155,15 @@ updatePosition dt mario =
         jumpDistance =
             mario.jumpDistance + verticalMovementAmount
 
-        action =
+        ( action, duration ) =
             case mario.action of
-                Walking duration ->
-                    Walking (duration + dt)
+                Walking ->
+                    ( Walking, (mario.actionDuration + dt) )
 
                 _ ->
-                    mario.action
+                    ( mario.action, mario.actionDuration )
     in
-        { mario | x = x, y = y, jumpDistance = jumpDistance, action = action }
+        { mario | x = x, y = y, jumpDistance = jumpDistance, action = action, actionDuration = duration }
 
 
 applyLeftMovement : Time -> Keys -> Mario -> Mario
@@ -207,7 +197,7 @@ applyJump dt keys mario =
 
         isNotFalling =
             case mario.action of
-                Falling duration ->
+                Falling ->
                     False
 
                 _ ->
@@ -258,30 +248,8 @@ draw mario spritesData =
         yPos =
             round mario.y
 
-        direction =
-            case mario.direction of
-                Left ->
-                    "left"
-
-                Right ->
-                    "right"
-
-        walkingAnimationFrameSpeed =
-            0.333
-
         spriteViewbox =
-            case mario.action of
-                Standing duration ->
-                    findAnimation "mario" "standing" direction duration spritesData
-
-                Jumping duration ->
-                    findAnimation "mario" "jumping" direction duration spritesData
-
-                Falling duration ->
-                    findAnimation "mario" "falling" direction duration spritesData
-
-                Walking duration ->
-                    findAnimation "mario" "walking" direction duration spritesData
+            findAnimation "mario" mario.action mario.actionDuration mario.direction spritesData
     in
         drawSprite xPos yPos spriteWidth spriteHeight spriteViewbox spritesData.imageUrl
 

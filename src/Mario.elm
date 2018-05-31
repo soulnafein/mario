@@ -7,7 +7,7 @@ import Svg.Attributes exposing (..)
 import Svg
 import Messages exposing (Msg)
 import Array exposing (Array)
-import Sprites exposing (SpritesData, findAnimation, Direction(..), Action(..))
+import Sprites exposing (SpritesData, findFrames, Direction(..), Action(..))
 
 
 type alias Mario =
@@ -249,7 +249,7 @@ draw mario spritesData =
             round mario.y
 
         spriteViewbox =
-            findAnimation "mario" mario.action mario.actionDuration mario.direction spritesData
+            findFrames "mario" mario.action mario.actionDuration mario.direction spritesData
     in
         drawSprite xPos yPos spriteWidth spriteHeight spriteViewbox spritesData.imageUrl
 

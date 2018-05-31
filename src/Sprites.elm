@@ -1,4 +1,4 @@
-module Sprites exposing (SpritesData, findAnimation, Action(..), Direction(..))
+module Sprites exposing (SpritesData, findFrames, Action(..), Direction(..))
 
 import Array exposing (Array)
 import List
@@ -14,7 +14,7 @@ type alias CharacterSprite =
     { action : Action
     , name : String
     , direction : Direction
-    , animation : Array (List Int)
+    , frames : Array (List Int)
     , animationSpeed : Float
     }
 
@@ -31,24 +31,24 @@ type Direction
     | Right
 
 
-findAnimation : String -> Action -> Float -> Direction -> SpritesData -> String
-findAnimation name action actionDuration direction spritesData =
+findFrames : String -> Action -> Float -> Direction -> SpritesData -> String
+findFrames name action actionDuration direction spritesData =
     let
         sprite =
             spritesData.sprites
                 |> List.filter (\c -> c.name == name && c.action == action && c.direction == direction)
                 |> List.head
     in
-        findAnimationFrame sprite actionDuration
+        findFrame sprite actionDuration
 
 
-findAnimationFrame : Maybe CharacterSprite -> Float -> String
-findAnimationFrame sprite duration =
+findFrame : Maybe CharacterSprite -> Float -> String
+findFrame sprite duration =
     case sprite of
         Just sprite ->
             let
                 frames =
-                    sprite.animation
+                    sprite.frames
                         |> Array.map listOfIntToViewboxString
 
                 numberOfFrames =

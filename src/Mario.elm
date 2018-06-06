@@ -136,12 +136,8 @@ updatePosition dt mario =
             mario.horizontalVelocity * dt
 
         x =
-            case mario.direction of
-                Left ->
-                    mario.x - horizontalMovementAmount
-
-                Right ->
-                    mario.x + horizontalMovementAmount
+            applyHorizontalMovement mario.direction mario.x horizontalMovementAmount
+                |> applyMidScreenWall
 
         verticalMovementAmount =
             mario.verticalVelocity * dt
@@ -163,6 +159,28 @@ updatePosition dt mario =
         { mario | x = x, y = y, jumpDistance = jumpDistance, action = action, actionDuration = duration }
 
 
+applyHorizontalMovement : Direction -> Float -> Float -> Float
+applyHorizontalMovement direction x horizontalMovementAmount =
+    case direction of
+        Left ->
+            x - horizontalMovementAmount
+
+        Right ->
+            x + horizontalMovementAmount
+
+
+applyMidScreenWall : Float -> Float
+applyMidScreenWall x =
+    let
+        midScreenX =
+            100
+    in
+        if x > midScreenX then
+            midScreenX
+        else
+            x
+
+
 applyLeftMovement : Time -> Keys -> Mario -> Mario
 applyLeftMovement dt keys mario =
     if keys.leftPressed then
@@ -181,6 +199,11 @@ applyRightMovement dt keys mario =
             |> changeDirection Right
     else
         mario
+
+
+isWalkingPastTheMiddleOfTheLevel : Mario -> Bool
+isWalkingPastTheMiddleOfTheLevel mario =
+    mario.x == 100
 
 
 applyJump : Time -> Keys -> Mario -> Mario

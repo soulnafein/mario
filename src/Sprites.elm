@@ -62,19 +62,22 @@ drawCharacter x y name action actionDuration direction characterSprites =
         drawSprite x y spriteWidth spriteHeight viewbox characterSprites.imageUrl
 
 
-drawTile : Int -> Int -> String -> TileSprites -> Svg Msg
-drawTile gridX gridY name tileSprites =
+drawTile : Int -> Int -> Int -> String -> TileSprites -> Svg Msg
+drawTile gridX gridY offset name tileSprites =
     let
         viewbox =
             tileViewbox name tileSprites
 
-        spriteWidth =
+        spriteSize =
             16
 
-        spriteHeight =
-            16
+        x =
+            (gridX * spriteSize) - offset
+
+        y =
+            gridY * spriteSize
     in
-        drawSprite (gridX * spriteWidth) (gridY * spriteHeight) spriteWidth spriteHeight viewbox tileSprites.imageUrl
+        drawSprite x y spriteSize spriteSize viewbox tileSprites.imageUrl
 
 
 tileViewbox : String -> TileSprites -> String

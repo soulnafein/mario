@@ -18,9 +18,9 @@ import Data.Sprites
 
 type alias Model =
     { mario : Mario.Mario
+    , level : Level.Level
     , keys : Keys.Keys
     , characterSprites : CharacterSprites
-    , tileSprites : TileSprites
     }
 
 
@@ -33,9 +33,9 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { mario = Mario.create
+      , level = Level.init flags.tilesPath
       , keys = Keys.create
       , characterSprites = Data.Sprites.characters flags.charactersPath
-      , tileSprites = Data.Sprites.tiles flags.tilesPath
       }
     , Cmd.none
     )
@@ -45,11 +45,19 @@ init flags =
 ---- UPDATE ----
 
 
+onTimeUpdate : Float -> Model -> Model
+onTimeUpdate dt model =
+    { model
+        | mario = Mario.move dt model.keys model.mario
+        , level = Level.update dt model.mario model.level
+    }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         TimeUpdate dt ->
-            ( { model | mario = Mario.move (dt / 1000) model.keys model.mario }, Cmd.none )
+            ( onTimeUpdate (dt / 1000) model, Cmd.none )
 
         KeyChanged isPressed keyCode ->
             let
@@ -87,12 +95,12 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ svg
-            [ width "100%"
-            , height "100%"
+            [ width "768"
+            , height "624"
             , viewBox "0 0 256 208"
             ]
-            [ rect [ width "100%", height "100%", fill "black" ] []
-            , Level.draw model.tileSprites
+            [ rect [ width "100%", height "100%", fill "#73ADF9" ] []
+            , Level.draw model.level
             , Mario.draw model.mario model.characterSprites
             ]
         ]

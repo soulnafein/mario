@@ -1,10 +1,11 @@
-module Level exposing (draw)
+module Level exposing (init, draw, Level, update)
 
 import Sprites exposing (TileSprites, drawTile)
 import Svg exposing (..)
-import Svg.Attributes exposing (..)
 import Svg
 import Messages exposing (Msg)
+import Data.Sprites
+import Mario exposing (Mario, isWalkingPastTheMiddleOfTheLevel)
 
 
 type alias Tile =
@@ -20,21 +21,44 @@ type alias TileRange =
     }
 
 
-tiles : List Tile
-tiles =
+type alias Level =
+    { tiles : List Tile
+    , horizontalOffset : Float
+    , tileSprites : TileSprites
+    }
+
+
+init : String -> Level
+init tilesPath =
     let
         ranges =
             [ { name = "ground"
-              , rectangle = ( 0, 11, 15, 12 )
-              }
-            , { name = "sky"
-              , rectangle = ( 0, 0, 15, 10 )
+              , rectangle = ( 0, 11, 30, 12 )
               }
             ]
                 ++ (hill 0 8)
                 ++ (cloud 9 3)
+                ++ (cloud 11 3)
     in
-        generateTiles ranges
+        { tiles = generateTiles ranges
+        , horizontalOffset = 0
+        , tileSprites = Data.Sprites.tiles tilesPath
+        }
+
+
+update : Float -> Mario -> Level -> Level
+update dt mario level =
+    let
+        horizontalOffsetIncrease =
+            mario.horizontalVelocity * dt
+
+        horizontalOffset =
+            if isWalkingPastTheMiddleOfTheLevel mario then
+                level.horizontalOffset + horizontalOffsetIncrease
+            else
+                level.horizontalOffset
+    in
+        { level | horizontalOffset = horizontalOffset }
 
 
 cloud : Int -> Int -> List TileRange
@@ -114,18 +138,16 @@ generateTileRow x1 x2 name y =
         |> List.map (\x -> { x = x, y = y, name = name })
 
 
-draw : TileSprites -> Svg Msg
-draw tileSprites =
-    g [] (List.map (\tile -> drawTile tile.x tile.y tile.name tileSprites) tiles)
+draw : Level -> Svg Msg
+draw level =
+    let
+        tiles =
+            level.tiles
 
+        tileSprites =
+            level.tileSprites
 
-px : Int -> String
-px n =
-    (toString n) ++ "px"
-
-
-drawSprite : Int -> Int -> Int -> Int -> String -> String -> Svg Msg
-drawSprite xPos yPos spriteWidth spriteHeight spriteViewbox path =
-    svg [ x (px xPos), y (px yPos), width (px spriteWidth), height (px spriteHeight), viewBox spriteViewbox ]
-        [ image [ imageRendering "pixelated", xlinkHref path ] []
-        ]
+        offset =
+            round level.horizontalOffset
+    in
+        g [] (List.map (\tile -> drawTile tile.x tile.y offset tile.name tileSprites) tiles)

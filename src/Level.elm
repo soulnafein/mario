@@ -23,6 +23,7 @@ type alias TileRange =
 
 type alias Level =
     { tiles : List Tile
+    , visibleTiles : List Tile
     , horizontalOffset : Float
     , tileSprites : TileSprites
     }
@@ -39,8 +40,12 @@ init tilesPath =
                 ++ (hill 0 8)
                 ++ (cloud 9 3)
                 ++ (cloud 11 3)
+
+        tiles =
+            generateTiles ranges
     in
-        { tiles = generateTiles ranges
+        { tiles = tiles
+        , visibleTiles = tilesAtOffset 0 tiles
         , horizontalOffset = 0
         , tileSprites = Data.Sprites.tiles tilesPath
         }
@@ -58,7 +63,23 @@ update dt mario level =
             else
                 level.horizontalOffset
     in
-        { level | horizontalOffset = horizontalOffset }
+        { level
+            | horizontalOffset = horizontalOffset
+            , visibleTiles = tilesAtOffset horizontalOffset level.tiles
+        }
+
+
+tilesAtOffset : Float -> List Tile -> List Tile
+tilesAtOffset offset tiles =
+    let
+        gridXMin =
+            round (offset / 16) - 1
+
+        gridXMax =
+            gridXMin + 16 + 2
+    in
+        tiles
+            |> List.filter (\tile -> tile.x >= gridXMin && tile.x < gridXMax)
 
 
 cloud : Int -> Int -> List TileRange
@@ -142,7 +163,7 @@ draw : Level -> Svg Msg
 draw level =
     let
         tiles =
-            level.tiles
+            level.visibleTiles
 
         tileSprites =
             level.tileSprites

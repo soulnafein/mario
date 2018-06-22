@@ -14,12 +14,14 @@ type alias Tile =
     { x : Int
     , y : Int
     , name : String
+    , isSolid : Bool
     }
 
 
 type alias TileRange =
     { name : String
     , rectangle : ( Int, Int, Int, Int )
+    , isSolid : Bool
     }
 
 
@@ -36,15 +38,19 @@ tilesData =
         ranges =
             [ { name = "ground"
               , rectangle = ( 0, 12, 68, 13 )
+              , isSolid = True
               }
             , { name = "ground"
               , rectangle = ( 71, 12, 85, 13 )
+              , isSolid = True
               }
             , { name = "ground"
               , rectangle = ( 89, 12, 152, 13 )
+              , isSolid = True
               }
             , { name = "ground"
               , rectangle = ( 155, 12, 211, 13 )
+              , isSolid = True
               }
             ]
                 ++ (hill 0 9)
@@ -55,27 +61,35 @@ tilesData =
                 ++ (smallHill 112 10)
                 ++ [ { name = "hill-1"
                      , rectangle = ( 144, 11, 144, 11 )
+                     , isSolid = False
                      }
                    , { name = "hill-1"
                      , rectangle = ( 145, 10, 145, 10 )
+                     , isSolid = False
                      }
                    , { name = "hill-4"
                      , rectangle = ( 145, 11, 145, 11 )
+                     , isSolid = False
                      }
                    , { name = "hill-5"
                      , rectangle = ( 146, 11, 146, 11 )
+                     , isSolid = False
                      }
                    , { name = "hill-4"
                      , rectangle = ( 146, 10, 146, 10 )
+                     , isSolid = False
                      }
                    , { name = "hill-2"
                      , rectangle = ( 146, 9, 146, 9 )
+                     , isSolid = False
                      }
                    , { name = "hill-3"
                      , rectangle = ( 147, 10, 147, 10 )
+                     , isSolid = False
                      }
                    , { name = "hill-4"
                      , rectangle = ( 147, 11, 147, 11 )
+                     , isSolid = False
                      }
                    ]
                 ++ (smallHill 160 10)
@@ -91,11 +105,20 @@ tilesData =
                 ++ (nBush 1 119 11)
                 ++ [ { name = "bush-2"
                      , rectangle = ( 138, 11, 139, 11 )
+                     , isSolid = False
                      }
                    ]
-                ++ [ { name = "bush-3", rectangle = ( 159, 11, 159, 11 ) } ]
+                ++ [ { name = "bush-3"
+                     , rectangle = ( 159, 11, 159, 11 )
+                     , isSolid = False
+                     }
+                   ]
                 ++ (nBush 1 167 11)
-                ++ [ { name = "bush-3", rectangle = ( 207, 11, 207, 11 ) } ]
+                ++ [ { name = "bush-3"
+                     , rectangle = ( 207, 11, 207, 11 )
+                     , isSolid = False
+                     }
+                   ]
                 ++ (nCloud 1 8 2)
                 ++ (nCloud 1 19 1)
                 ++ (nCloud 3 27 2)
@@ -163,78 +186,103 @@ tilesData =
                 ++ (brick 171 8)
                 ++ [ { name = "hard-brick"
                      , rectangle = ( 134, 11, 137, 11 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 135, 10, 137, 10 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 136, 9, 137, 9 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 137, 8, 137, 8 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 140, 11, 143, 11 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 140, 10, 142, 10 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 140, 9, 141, 9 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 140, 8, 140, 8 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 148, 11, 152, 11 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 149, 10, 152, 10 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 150, 9, 152, 9 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 151, 8, 152, 8 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 155, 11, 158, 11 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 155, 10, 157, 10 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 155, 9, 156, 9 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 155, 8, 155, 8 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 181, 11, 189, 11 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 182, 10, 189, 10 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 183, 9, 189, 9 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 184, 8, 189, 8 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 185, 7, 189, 7 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 186, 6, 189, 6 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 187, 5, 189, 5 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 188, 4, 189, 4 )
+                     , isSolid = True
                      }
                    , { name = "hard-brick"
                      , rectangle = ( 198, 11, 198, 11 )
+                     , isSolid = True
                      }
                    ]
                 ++ castle 202 7
@@ -289,6 +337,7 @@ lootBox : Int -> Int -> List TileRange
 lootBox x y =
     [ { name = "loot-box"
       , rectangle = ( x, y, x, y )
+      , isSolid = True
       }
     ]
 
@@ -297,6 +346,7 @@ tile : Int -> Int -> String -> List TileRange
 tile x y name =
     [ { name = name
       , rectangle = ( x, y, x, y )
+      , isSolid = True
       }
     ]
 
@@ -331,6 +381,7 @@ brick : Int -> Int -> List TileRange
 brick x y =
     [ { name = "brick-1"
       , rectangle = ( x, y, x, y )
+      , isSolid = True
       }
     ]
 
@@ -339,9 +390,11 @@ nPipe : Int -> Int -> Int -> List TileRange
 nPipe n x y =
     [ { name = "pipe-1"
       , rectangle = ( x, y, x, y )
+      , isSolid = True
       }
     , { name = "pipe-2"
       , rectangle = ( x + 1, y, x + 1, y )
+      , isSolid = True
       }
     ]
         ++ (List.range 1 n
@@ -349,9 +402,11 @@ nPipe n x y =
                     (\relativeY ->
                         [ { name = "pipe-3"
                           , rectangle = ( x, y + relativeY, x, y + relativeY )
+                          , isSolid = True
                           }
                         , { name = "pipe-4"
                           , rectangle = ( x + 1, y + relativeY, x + 1, y + relativeY )
+                          , isSolid = True
                           }
                         ]
                     )
@@ -362,13 +417,15 @@ nBush : Int -> Int -> Int -> List TileRange
 nBush n x y =
     [ { name = "bush-1"
       , rectangle = ( x, y, x, y )
+      , isSolid = False
       }
     ]
         ++ ((List.range 1 n)
-                |> List.map (\relativeX -> { name = "bush-2", rectangle = ( relativeX + x, y, relativeX + x, y ) })
+                |> List.map (\relativeX -> { name = "bush-2", rectangle = ( relativeX + x, y, relativeX + x, y ), isSolid = False })
            )
         ++ [ { name = "bush-3"
              , rectangle = ( x + n + 1, y, x + n + 1, y )
+             , isSolid = False
              }
            ]
 
@@ -377,110 +434,49 @@ nCloud : Int -> Int -> Int -> List TileRange
 nCloud n x y =
     [ { name = "cloud-1"
       , rectangle = ( x, y, x, y )
+      , isSolid = False
       }
     ]
         ++ ((List.range 1 n)
-                |> List.map (\relativeX -> { name = "cloud-2", rectangle = ( relativeX + x, y, relativeX + x, y ) })
+                |> List.map (\relativeX -> { name = "cloud-2", rectangle = ( relativeX + x, y, relativeX + x, y ), isSolid = False })
            )
         ++ [ { name = "cloud-3"
              , rectangle = ( x + n + 1, y, x + n + 1, y )
+             , isSolid = False
              }
            ]
         ++ [ { name = "cloud-4"
              , rectangle = ( x, y + 1, x, y + 1 )
+             , isSolid = False
              }
            ]
         ++ ((List.range 1 n)
-                |> List.map (\relativeX -> { name = "cloud-5", rectangle = ( relativeX + x, y + 1, relativeX + x, y + 1 ) })
+                |> List.map (\relativeX -> { name = "cloud-5", rectangle = ( relativeX + x, y + 1, relativeX + x, y + 1 ), isSolid = False })
            )
         ++ [ { name = "cloud-6"
              , rectangle = ( x + n + 1, y + 1, x + n + 1, y + 1 )
+             , isSolid = False
              }
            ]
-
-
-cloud : Int -> Int -> List TileRange
-cloud x y =
-    nCloud 1 x y
-
-
-doubleCloud : Int -> Int -> List TileRange
-doubleCloud x y =
-    [ { name = "cloud-1"
-      , rectangle = ( x, y, x, y )
-      }
-    , { name = "cloud-2"
-      , rectangle = ( x + 1, y, x + 1, y )
-      }
-    , { name = "cloud-2"
-      , rectangle = ( x + 2, y, x + 2, y )
-      }
-    , { name = "cloud-3"
-      , rectangle = ( x + 3, y, x + 3, y )
-      }
-    , { name = "cloud-4"
-      , rectangle = ( x, y + 1, x, y + 1 )
-      }
-    , { name = "cloud-5"
-      , rectangle = ( x + 1, y + 1, x + 1, y + 1 )
-      }
-    , { name = "cloud-5"
-      , rectangle = ( x + 2, y + 1, x + 2, y + 1 )
-      }
-    , { name = "cloud-6"
-      , rectangle = ( x + 3, y + 1, x + 3, y + 1 )
-      }
-    ]
-
-
-tripleCloud : Int -> Int -> List TileRange
-tripleCloud x y =
-    [ { name = "cloud-1"
-      , rectangle = ( x, y, x, y )
-      }
-    , { name = "cloud-2"
-      , rectangle = ( x + 1, y, x + 1, y )
-      }
-    , { name = "cloud-2"
-      , rectangle = ( x + 2, y, x + 2, y )
-      }
-    , { name = "cloud-2"
-      , rectangle = ( x + 3, y, x + 3, y )
-      }
-    , { name = "cloud-3"
-      , rectangle = ( x + 4, y, x + 4, y )
-      }
-    , { name = "cloud-4"
-      , rectangle = ( x, y + 1, x, y + 1 )
-      }
-    , { name = "cloud-5"
-      , rectangle = ( x + 1, y + 1, x + 1, y + 1 )
-      }
-    , { name = "cloud-5"
-      , rectangle = ( x + 2, y + 1, x + 2, y + 1 )
-      }
-    , { name = "cloud-5"
-      , rectangle = ( x + 3, y + 1, x + 3, y + 1 )
-      }
-    , { name = "cloud-6"
-      , rectangle = ( x + 4, y + 1, x + 4, y + 1 )
-      }
-    ]
 
 
 smallHill : Int -> Int -> List TileRange
 smallHill x y =
     [ { name = "hill-1"
       , rectangle = ( x, y + 1, x, y + 1 )
+      , isSolid = False
       }
     , { name = "hill-4"
       , rectangle = ( x + 1, y + 1, x + 1, y + 1 )
+      , isSolid = False
       }
     , { name = "hill-2"
       , rectangle = ( x + 1, y, x + 1, y )
+      , isSolid = False
       }
     , { name = "hill-3"
       , rectangle = ( x + 2, y + 1, x + 2, y + 1 )
+      , isSolid = False
       }
     ]
 
@@ -489,30 +485,39 @@ hill : Int -> Int -> List TileRange
 hill x y =
     [ { name = "hill-1"
       , rectangle = ( x, y + 2, x, y + 2 )
+      , isSolid = False
       }
     , { name = "hill-1"
       , rectangle = ( x + 1, y + 1, x + 1, y + 1 )
+      , isSolid = False
       }
     , { name = "hill-4"
       , rectangle = ( x + 1, y + 2, x + 1, y + 2 )
+      , isSolid = False
       }
     , { name = "hill-5"
       , rectangle = ( x + 2, y + 2, x + 2, y + 2 )
+      , isSolid = False
       }
     , { name = "hill-4"
       , rectangle = ( x + 2, y + 1, x + 2, y + 1 )
+      , isSolid = False
       }
     , { name = "hill-2"
       , rectangle = ( x + 2, y, x + 2, y )
+      , isSolid = False
       }
     , { name = "hill-3"
       , rectangle = ( x + 3, y + 1, x + 3, y + 1 )
+      , isSolid = False
       }
     , { name = "hill-4"
       , rectangle = ( x + 3, y + 2, x + 3, y + 2 )
+      , isSolid = False
       }
     , { name = "hill-3"
       , rectangle = ( x + 4, y + 2, x + 4, y + 2 )
+      , isSolid = False
       }
     ]
 
@@ -531,13 +536,13 @@ generateTilesFromRange range =
             range.rectangle
     in
         List.range y1 y2
-            |> List.concatMap (generateTileRow x1 x2 range.name)
+            |> List.concatMap (generateTileRow x1 x2 range.name range.isSolid)
 
 
-generateTileRow : Int -> Int -> String -> Int -> List Tile
-generateTileRow x1 x2 name y =
+generateTileRow : Int -> Int -> String -> Bool -> Int -> List Tile
+generateTileRow x1 x2 name isSolid y =
     List.range x1 x2
-        |> List.map (\x -> { x = x, y = y, name = name })
+        |> List.map (\x -> { x = x, y = y, name = name, isSolid = isSolid })
 
 
 draw : Level -> Svg Msg

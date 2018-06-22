@@ -12,10 +12,6 @@ tiles imageUrl =
           , frames = Array.fromList [ [ 0, 0, 16, 16 ] ]
           , animationSpeed = 1
           }
-        , { name = "sky"
-          , frames = Array.fromList [ [ 48, 368, 16, 16 ] ]
-          , animationSpeed = 1
-          }
         , { name = "hill-1"
           , frames = Array.fromList [ [ 128, 128, 16, 16 ] ]
           , animationSpeed = 1

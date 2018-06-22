@@ -10,6 +10,7 @@
     "gh-pages": "^1.1.0"
   },
   "scripts": {
-    "start": "elm-app start"
+    "start": "elm-app start",
+    "elm-package": "elm-package"
   }
 }

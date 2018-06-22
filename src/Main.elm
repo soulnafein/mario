@@ -96,8 +96,8 @@ view model =
     Html.div []
         [ svg
             [ width "768"
-            , height "624"
-            , viewBox "0 0 256 208"
+            , height "672"
+            , viewBox "0 0 256 224"
             ]
             [ rect [ width "100%", height "100%", fill "#73ADF9" ] []
             , Level.draw model.level

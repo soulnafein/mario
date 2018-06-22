@@ -40,6 +40,18 @@ tiles imageUrl =
           , frames = Array.fromList [ [ 160, 144, 16, 16 ] ]
           , animationSpeed = 1
           }
+        , { name = "bush-1"
+          , frames = Array.fromList [ [ 176, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "bush-2"
+          , frames = Array.fromList [ [ 192, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "bush-3"
+          , frames = Array.fromList [ [ 208, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
         , { name = "cloud-1"
           , frames = Array.fromList [ [ 0, 320, 16, 16 ] ]
           , animationSpeed = 1
@@ -62,6 +74,58 @@ tiles imageUrl =
           }
         , { name = "cloud-6"
           , frames = Array.fromList [ [ 32, 336, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "pipe-1"
+          , frames = Array.fromList [ [ 0, 128, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "pipe-2"
+          , frames = Array.fromList [ [ 16, 128, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "pipe-3"
+          , frames = Array.fromList [ [ 0, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "pipe-4"
+          , frames = Array.fromList [ [ 16, 144, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "brick-1"
+          , frames = Array.fromList [ [ 32, 0, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "hard-brick"
+          , frames = Array.fromList [ [ 0, 16, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "loot-box"
+          , frames = Array.fromList [ [ 384, 0, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "castle-1"
+          , frames = Array.fromList [ [ 176, 0, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "castle-2"
+          , frames = Array.fromList [ [ 192, 0, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "castle-3"
+          , frames = Array.fromList [ [ 224, 0, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "castle-4"
+          , frames = Array.fromList [ [ 176, 16, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "castle-5"
+          , frames = Array.fromList [ [ 192, 16, 16, 16 ] ]
+          , animationSpeed = 1
+          }
+        , { name = "castle-6"
+          , frames = Array.fromList [ [ 208, 16, 16, 16 ] ]
           , animationSpeed = 1
           }
         ]

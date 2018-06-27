@@ -21,6 +21,7 @@ type alias Model =
     , level : Level.Level
     , keys : Keys.Keys
     , characterSprites : CharacterSprites
+    , gameRunning : Bool
     }
 
 
@@ -36,6 +37,7 @@ init flags =
       , level = Level.init flags.tilesPath
       , keys = Keys.create
       , characterSprites = Data.Sprites.characters flags.charactersPath
+      , gameRunning = True
       }
     , Cmd.none
     )
@@ -47,10 +49,26 @@ init flags =
 
 onTimeUpdate : Float -> Model -> Model
 onTimeUpdate dt model =
-    { model
-        | mario = Mario.move dt model.keys model.mario
-        , level = Level.update dt model.mario model.level
-    }
+    let
+        solidTiles =
+            Level.solidTiles model.level
+
+        mario =
+            Mario.update dt model.keys solidTiles model.mario
+
+        horizontalOffsetIncrease =
+            if Mario.isWalkingPastTheMiddleOfTheLevel mario then
+                mario.horizontalVelocity * dt
+            else
+                0
+
+        level =
+            Level.update dt horizontalOffsetIncrease model.level
+    in
+        { model
+            | mario = mario
+            , level = level
+        }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -83,8 +101,14 @@ update msg model =
                         toString keyCode
                     else
                         "N/A"
+
+                gameRunning =
+                    if keyCode == 80 && not isPressed then
+                        not model.gameRunning
+                    else
+                        model.gameRunning
             in
-                ( { model | keys = { updatedKeys | keyPressed = keyPressed } }, Cmd.none )
+                ( { model | gameRunning = gameRunning, keys = { updatedKeys | keyPressed = keyPressed } }, Cmd.none )
 
 
 
@@ -108,11 +132,17 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ AnimationFrame.diffs TimeUpdate
-        , Keyboard.downs (KeyChanged True)
-        , Keyboard.ups (KeyChanged False)
-        ]
+    let
+        subs =
+            [ Keyboard.downs (KeyChanged True)
+            , Keyboard.ups (KeyChanged False)
+            ]
+                ++ if model.gameRunning then
+                    [ AnimationFrame.diffs TimeUpdate ]
+                   else
+                    []
+    in
+        Sub.batch subs
 
 
 

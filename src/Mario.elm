@@ -17,6 +17,7 @@ type alias Mario =
     , horizontalVelocity : Float
     , verticalVelocity : Float
     , jumpDistance : Float
+    , justJumped : Bool
     }
 
 
@@ -30,6 +31,7 @@ create =
     , horizontalVelocity = 0
     , verticalVelocity = 0
     , jumpDistance = 0
+    , justJumped = False
     }
 
 
@@ -79,8 +81,6 @@ changeAction mario =
             if mario.verticalVelocity > 0 then
                 ( Jumping, 0 )
             else if mario.verticalVelocity < 0 then
-                ( Falling, 0 )
-            else if mario.action == Jumping && mario.verticalVelocity == 0 then
                 ( Falling, 0 )
             else if mario.horizontalVelocity > 0 then
                 case mario.action of
@@ -274,11 +274,23 @@ applyJump dt keys mario =
 
                 _ ->
                     True
+
+        onTheGround =
+            not (List.member mario.action [ Jumping, Falling ])
+
+        justJumped =
+            if onTheGround && not keys.jumpPressed then
+                False
+            else
+                True
+
+        updatedMario =
+            { mario | justJumped = justJumped }
     in
-        if keys.jumpPressed && isNotFalling then
-            mario |> updateVerticalVelocity newVelocity
+        if keys.jumpPressed && (mario.action == Jumping || not mario.justJumped) then
+            updatedMario |> updateVerticalVelocity newVelocity
         else
-            mario
+            updatedMario
 
 
 changeDirection : Direction -> Mario -> Mario

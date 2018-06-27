@@ -47,8 +47,8 @@ init flags =
 ---- UPDATE ----
 
 
-onTimeUpdate : Float -> Model -> Model
-onTimeUpdate dt model =
+onTimeUpdatePhysicsInterval : Float -> Model -> Model
+onTimeUpdatePhysicsInterval dt model =
     let
         solidTiles =
             Level.solidTiles model.level
@@ -69,6 +69,20 @@ onTimeUpdate dt model =
             | mario = mario
             , level = level
         }
+
+
+physicsInterval : Float
+physicsInterval =
+    0.05
+
+
+onTimeUpdate : Float -> Model -> Model
+onTimeUpdate dt model =
+    if dt > physicsInterval then
+        onTimeUpdatePhysicsInterval physicsInterval model
+            |> onTimeUpdate (dt - physicsInterval)
+    else
+        onTimeUpdatePhysicsInterval dt model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

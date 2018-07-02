@@ -7,6 +7,7 @@ import AnimationFrame
 import Keyboard exposing (KeyCode)
 import Mario as Mario
 import Level as Level
+import Viewport as Viewport
 import Keys as Keys
 import Sprites exposing (..)
 import Messages exposing (Msg(..))
@@ -19,6 +20,7 @@ import Data.Sprites
 type alias Model =
     { mario : Mario.Mario
     , level : Level.Level
+    , viewport : Viewport.Viewport
     , keys : Keys.Keys
     , characterSprites : CharacterSprites
     , gameRunning : Bool
@@ -34,7 +36,8 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { mario = Mario.create
-      , level = Level.init flags.tilesPath
+      , level = Level.create flags.tilesPath
+      , viewport = Viewport.create
       , keys = Keys.create
       , characterSprites = Data.Sprites.characters flags.charactersPath
       , gameRunning = True
@@ -56,18 +59,16 @@ onTimeUpdatePhysicsInterval dt model =
         mario =
             Mario.update dt model.keys solidTiles model.mario
 
-        horizontalOffsetIncrease =
-            if Mario.isWalkingPastTheMiddleOfTheLevel mario model.level.horizontalOffset then
-                mario.horizontalVelocity * dt
-            else
-                0
+        viewport =
+            Viewport.update mario.x mario.horizontalVelocity dt model.viewport
 
         level =
-            Level.update dt horizontalOffsetIncrease model.level
+            Level.update viewport model.level
     in
         { model
             | mario = mario
             , level = level
+            , viewport = viewport
         }
 
 
@@ -138,8 +139,8 @@ view model =
             , viewBox "0 0 256 224"
             ]
             [ rect [ width "100%", height "100%", fill "#73ADF9" ] []
-            , Level.draw model.level
-            , Mario.draw model.mario (round model.level.horizontalOffset) model.characterSprites
+            , Level.draw model.viewport model.level
+            , Mario.draw model.mario model.viewport model.characterSprites
             ]
         ]
 

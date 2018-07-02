@@ -1,4 +1,4 @@
-module Level exposing (init, draw, Level, update, solidTiles)
+module Level exposing (create, draw, Level, update, solidTiles)
 
 import Sprites exposing (TileSprites, drawTile)
 import Svg exposing (..)
@@ -7,32 +7,31 @@ import Messages exposing (Msg)
 import Data.Sprites
 import Dict exposing (Dict)
 import Data.Level exposing (tilesData, Tile)
+import Viewport exposing (Viewport)
 
 
 type alias Level =
     { visibleTiles : List Tile
-    , horizontalOffset : Float
     , tileSprites : TileSprites
     }
 
 
-init : String -> Level
-init tilesPath =
+create : String -> Level
+create tilesPath =
     { visibleTiles = tilesAtOffset 0 tilesData
-    , horizontalOffset = 0
-    , tileSprites = Data.Sprites.tiles tilesPath
+    , tileSprites =
+        Data.Sprites.tiles tilesPath
     }
 
 
-update : Float -> Float -> Level -> Level
-update dt horizontalOffsetIncrease level =
+update : Viewport -> Level -> Level
+update viewport level =
     let
         horizontalOffset =
-            level.horizontalOffset + horizontalOffsetIncrease
+            viewport.x
     in
         { level
-            | horizontalOffset = horizontalOffset
-            , visibleTiles = tilesAtOffset horizontalOffset tilesData
+            | visibleTiles = tilesAtOffset horizontalOffset tilesData
         }
 
 
@@ -66,8 +65,8 @@ solidTiles level =
             )
 
 
-draw : Level -> Svg Msg
-draw level =
+draw : Viewport -> Level -> Svg Msg
+draw viewport level =
     let
         tiles =
             level.visibleTiles
@@ -76,6 +75,6 @@ draw level =
             level.tileSprites
 
         offset =
-            round level.horizontalOffset
+            round viewport.x
     in
         g [] (List.map (\tile -> drawTile (round tile.x) (round tile.y) offset tile.name tileSprites) tiles)

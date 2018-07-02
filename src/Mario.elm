@@ -2,10 +2,12 @@ module Mario exposing (..)
 
 import Keys exposing (Keys)
 import Time exposing (Time)
-import Sprites exposing (CharacterSprites, drawCharacter, Direction(..), Action(..))
+import Data.Level exposing (Tile)
+import Sprites exposing (Direction(..), Action(..))
+import Sprites exposing (CharacterSprites, drawCharacter)
 import Svg exposing (Svg)
 import Messages exposing (Msg)
-import Data.Level exposing (Tile)
+import Viewport exposing (Viewport)
 
 
 type alias Mario =
@@ -349,13 +351,16 @@ updateVerticalVelocity velocity mario =
     { mario | verticalVelocity = velocity }
 
 
-draw : Mario -> Int -> CharacterSprites -> Svg Msg
-draw mario offset characterSprites =
+draw : Mario -> Viewport -> CharacterSprites -> Svg Msg
+draw mario viewport characterSprites =
     let
         xPos =
             round mario.x
 
         yPos =
             round mario.y
+
+        offset =
+            round viewport.x
     in
         drawCharacter xPos yPos offset "mario" mario.action mario.actionDuration mario.direction characterSprites

@@ -36,7 +36,7 @@ update dt horizontalOffsetIncrease level =
         }
 
 
-tilesAtOffset : Float -> Dict Int (List Tile) -> List Tile
+tilesAtOffset : Float -> Dict Float (List Tile) -> List Tile
 tilesAtOffset offset tiles =
     let
         gridXMin =
@@ -47,7 +47,7 @@ tilesAtOffset offset tiles =
 
         result =
             List.range gridXMin gridXMax
-                |> List.map (\gridX -> Dict.get gridX tiles |> Maybe.withDefault [])
+                |> List.map (\gridX -> Dict.get (toFloat gridX) tiles |> Maybe.withDefault [])
                 |> List.concat
     in
         result
@@ -60,7 +60,7 @@ solidTiles level =
         |> List.map
             (\tile ->
                 { tile
-                    | x = tile.x * 16 - (round level.horizontalOffset)
+                    | x = tile.x * 16 - level.horizontalOffset
                     , y = tile.y * 16
                 }
             )
@@ -78,4 +78,4 @@ draw level =
         offset =
             round level.horizontalOffset
     in
-        g [] (List.map (\tile -> drawTile tile.x tile.y offset tile.name tileSprites) tiles)
+        g [] (List.map (\tile -> drawTile (round tile.x) (round tile.y) offset tile.name tileSprites) tiles)

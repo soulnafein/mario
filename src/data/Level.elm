@@ -5,8 +5,8 @@ import Exts.Dict exposing (groupBy)
 
 
 type alias Tile =
-    { x : Int
-    , y : Int
+    { x : Float
+    , y : Float
     , name : String
     , isSolid : Bool
     }
@@ -19,7 +19,7 @@ type alias TileRange =
     }
 
 
-tilesData : Dict Int (List Tile)
+tilesData : Dict Float (List Tile)
 tilesData =
     let
         ranges =
@@ -466,7 +466,7 @@ hill x y =
     ]
 
 
-generateTiles : List TileRange -> Dict Int (List Tile)
+generateTiles : List TileRange -> Dict Float (List Tile)
 generateTiles ranges =
     ranges
         |> List.concatMap generateTilesFromRange
@@ -486,4 +486,4 @@ generateTilesFromRange range =
 generateTileRow : Int -> Int -> String -> Bool -> Int -> List Tile
 generateTileRow x1 x2 name isSolid y =
     List.range x1 x2
-        |> List.map (\x -> { x = x, y = y, name = name, isSolid = isSolid })
+        |> List.map (\x -> { x = toFloat x, y = toFloat y, name = name, isSolid = isSolid })

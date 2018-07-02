@@ -11,6 +11,8 @@ import Data.Level exposing (Tile)
 type alias Mario =
     { x : Float
     , y : Float
+    , oldX : Float
+    , oldY : Float
     , direction : Direction
     , action : Action
     , actionDuration : Float
@@ -25,6 +27,8 @@ create : Mario
 create =
     { x = 0
     , y = 0
+    , oldX = 0
+    , oldY = 0
     , direction = Left
     , action = Falling
     , actionDuration = 0
@@ -69,8 +73,8 @@ update dt keys solidTiles mario =
         |> applyFriction dt
         |> applyGravity dt
         |> updatePosition dt
-        |> applyJumpLimit
         |> checkCollisions solidTiles
+        |> applyJumpLimit
         |> changeAction
 
 
@@ -122,55 +126,79 @@ applyGravity dt mario =
 
 checkCollisions : List Tile -> Mario -> Mario
 checkCollisions solidTiles mario =
-    checkVerticalCollisions solidTiles mario
+    case solidTiles of
+        [] ->
+            mario
+
+        tile :: other ->
+            checkCollisions other (checkCollision tile mario)
 
 
-checkVerticalCollisions : List Tile -> Mario -> Mario
-checkVerticalCollisions solidTiles mario =
+boundedBox : Float -> Float -> ( Float, Float, Float, Float )
+boundedBox x y =
+    ( y, x + 15, y + 15, x )
+
+
+checkCollision : Tile -> Mario -> Mario
+checkCollision tile mario =
     let
-        marioX1 =
-            mario.x
+        ( top, right, bottom, left ) =
+            boundedBox mario.x mario.y
 
-        marioX2 =
-            marioX1 + 15
+        ( tileTop, tileRight, tileBottom, tileLeft ) =
+            boundedBox tile.x tile.y
 
-        marioY1 =
-            mario.y
-
-        marioY2 =
-            marioY1 + 15
-
-        tileMarioIsStandingOn =
-            solidTiles
-                |> List.filter
-                    (\tile ->
-                        let
-                            tileX1 =
-                                tile.x
-
-                            tileX2 =
-                                tileX1 + 15
-
-                            tileY1 =
-                                tile.y
-
-                            tileY2 =
-                                tileY1 + 15
-                        in
-                            (marioX1 <= tileX2)
-                                && (marioX2 >= tileX1)
-                                && (marioY2 >= tileY1)
-                                && (marioY2 < tileY2)
-                    )
-                |> List.sortBy .y
-                |> List.head
+        hasCollided =
+            not
+                ((bottom + 1 < tileTop)
+                    || (top - 1 > tileBottom)
+                    || (left > tileRight)
+                    || (right < tileLeft)
+                )
     in
-        case tileMarioIsStandingOn of
-            Nothing ->
-                mario
+        if hasCollided then
+            applyCollision tile mario
+        else
+            mario
 
-            Just tile ->
-                { mario | verticalVelocity = 0, y = (toFloat tile.y) - 15, jumpDistance = 0 }
+
+applyCollision : Tile -> Mario -> Mario
+applyCollision tile mario =
+    let
+        ( top, right, bottom, left ) =
+            boundedBox mario.x mario.y
+
+        ( oldTop, oldRight, oldBottom, oldLeft ) =
+            boundedBox mario.oldX mario.oldY
+
+        ( tileTop, tileRight, tileBottom, tileLeft ) =
+            boundedBox tile.x tile.y
+
+        fromLeft =
+            (oldRight <= tileLeft) && (right >= tileLeft)
+
+        fromRight =
+            oldLeft > tileRight
+
+        fromTop =
+            oldBottom < tileTop
+
+        fromBottom =
+            oldTop > tileBottom
+
+        updatedMario =
+            if fromTop then
+                { mario | verticalVelocity = 0, y = tileTop - 16, oldY = mario.y, jumpDistance = 0 }
+            else if fromLeft then
+                { mario | horizontalVelocity = -10, x = tileLeft - 50, oldX = mario.x }
+            else if fromRight then
+                { mario | horizontalVelocity = 10 }
+            else if fromBottom then
+                { mario | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+            else
+                mario
+    in
+        updatedMario
 
 
 updatePosition : Time -> Mario -> Mario
@@ -179,12 +207,18 @@ updatePosition dt mario =
         horizontalMovementAmount =
             mario.horizontalVelocity * dt
 
+        oldX =
+            mario.x
+
         x =
             applyHorizontalMovement mario.direction mario.x horizontalMovementAmount
                 |> applyMidScreenWall
 
         verticalMovementAmount =
             mario.verticalVelocity * dt
+
+        oldY =
+            mario.y
 
         y =
             mario.y - verticalMovementAmount
@@ -208,7 +242,15 @@ updatePosition dt mario =
                 _ ->
                     ( mario.action, mario.actionDuration )
     in
-        { mario | x = x, y = y, jumpDistance = jumpDistance, action = action, actionDuration = duration }
+        { mario
+            | x = x
+            , y = y
+            , oldX = oldX
+            , oldY = oldY
+            , jumpDistance = jumpDistance
+            , action = action
+            , actionDuration = duration
+        }
 
 
 applyHorizontalMovement : Direction -> Float -> Float -> Float

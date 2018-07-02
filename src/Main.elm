@@ -73,7 +73,7 @@ onTimeUpdatePhysicsInterval dt model =
 
 physicsInterval : Float
 physicsInterval =
-    0.05
+    0.01
 
 
 onTimeUpdate : Float -> Model -> Model

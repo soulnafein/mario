@@ -190,9 +190,9 @@ applyCollision tile mario =
             if fromTop then
                 { mario | verticalVelocity = 0, y = tileTop - 16, oldY = mario.y, jumpDistance = 0 }
             else if fromLeft then
-                { mario | horizontalVelocity = -10, x = tileLeft - 50, oldX = mario.x }
+                { mario | horizontalVelocity = 0, x = tileLeft - 16 }
             else if fromRight then
-                { mario | horizontalVelocity = 10 }
+                { mario | horizontalVelocity = 0, x = tileRight + 1 }
             else if fromBottom then
                 { mario | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
             else
@@ -212,7 +212,6 @@ updatePosition dt mario =
 
         x =
             applyHorizontalMovement mario.direction mario.x horizontalMovementAmount
-                |> applyMidScreenWall
 
         verticalMovementAmount =
             mario.verticalVelocity * dt
@@ -295,9 +294,9 @@ applyRightMovement dt keys mario =
         mario
 
 
-isWalkingPastTheMiddleOfTheLevel : Mario -> Bool
-isWalkingPastTheMiddleOfTheLevel mario =
-    mario.x == 100
+isWalkingPastTheMiddleOfTheLevel : Mario -> Float -> Bool
+isWalkingPastTheMiddleOfTheLevel mario offset =
+    (mario.x - offset) > 100
 
 
 applyJump : Time -> Keys -> Mario -> Mario
@@ -350,8 +349,8 @@ updateVerticalVelocity velocity mario =
     { mario | verticalVelocity = velocity }
 
 
-draw : Mario -> CharacterSprites -> Svg Msg
-draw mario characterSprites =
+draw : Mario -> Int -> CharacterSprites -> Svg Msg
+draw mario offset characterSprites =
     let
         xPos =
             round mario.x
@@ -359,4 +358,4 @@ draw mario characterSprites =
         yPos =
             round mario.y
     in
-        drawCharacter xPos yPos "mario" mario.action mario.actionDuration mario.direction characterSprites
+        drawCharacter xPos yPos offset "mario" mario.action mario.actionDuration mario.direction characterSprites

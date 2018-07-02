@@ -60,7 +60,7 @@ solidTiles level =
         |> List.map
             (\tile ->
                 { tile
-                    | x = tile.x * 16 - level.horizontalOffset
+                    | x = tile.x * 16
                     , y = tile.y * 16
                 }
             )

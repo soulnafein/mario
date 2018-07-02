@@ -57,7 +57,7 @@ onTimeUpdatePhysicsInterval dt model =
             Mario.update dt model.keys solidTiles model.mario
 
         horizontalOffsetIncrease =
-            if Mario.isWalkingPastTheMiddleOfTheLevel mario then
+            if Mario.isWalkingPastTheMiddleOfTheLevel mario model.level.horizontalOffset then
                 mario.horizontalVelocity * dt
             else
                 0
@@ -139,7 +139,7 @@ view model =
             ]
             [ rect [ width "100%", height "100%", fill "#73ADF9" ] []
             , Level.draw model.level
-            , Mario.draw model.mario model.characterSprites
+            , Mario.draw model.mario (round model.level.horizontalOffset) model.characterSprites
             ]
         ]
 

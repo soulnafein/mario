@@ -47,8 +47,8 @@ type Direction
     | Right
 
 
-drawCharacter : Int -> Int -> String -> Action -> Float -> Direction -> CharacterSprites -> Svg Msg
-drawCharacter x y name action actionDuration direction characterSprites =
+drawCharacter : Int -> Int -> Int -> String -> Action -> Float -> Direction -> CharacterSprites -> Svg Msg
+drawCharacter x y offset name action actionDuration direction characterSprites =
     let
         viewbox =
             findFrames name action actionDuration direction characterSprites
@@ -59,7 +59,7 @@ drawCharacter x y name action actionDuration direction characterSprites =
         spriteHeight =
             16
     in
-        drawSprite x y spriteWidth spriteHeight viewbox characterSprites.imageUrl
+        drawSprite (x - offset) y spriteWidth spriteHeight viewbox characterSprites.imageUrl
 
 
 drawTile : Int -> Int -> Int -> String -> TileSprites -> Svg Msg

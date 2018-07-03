@@ -53,8 +53,23 @@ init flags =
 onTimeUpdatePhysicsInterval : Float -> Model -> Model
 onTimeUpdatePhysicsInterval dt model =
     let
+        top =
+            model.mario.y - 32
+
+        right =
+            model.mario.x + 64
+
+        bottom =
+            model.mario.y + 64
+
+        left =
+            model.mario.x - 32
+
+        rectangle =
+            ( top, right, bottom, left )
+
         solidTiles =
-            Level.solidTiles model.level
+            Level.solidTiles rectangle model.level
 
         mario =
             Mario.update dt model.keys solidTiles model.mario

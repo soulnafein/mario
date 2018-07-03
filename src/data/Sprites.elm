@@ -97,8 +97,8 @@ tiles imageUrl =
           , animationSpeed = 1
           }
         , { name = "loot-box"
-          , frames = Array.fromList [ [ 384, 0, 16, 16 ] ]
-          , animationSpeed = 1
+          , frames = Array.fromList [ [ 384, 0, 16, 16 ], [ 384, 0, 16, 16 ], [ 384, 0, 16, 16 ], [ 400, 0, 16, 16 ], [ 416, 0, 16, 16 ] ]
+          , animationSpeed = 0.18
           }
         , { name = "castle-1"
           , frames = Array.fromList [ [ 176, 0, 16, 16 ] ]

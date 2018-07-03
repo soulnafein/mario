@@ -8,11 +8,13 @@ import Data.Sprites
 import Dict exposing (Dict)
 import Data.Level exposing (tilesData, Tile)
 import Viewport exposing (Viewport)
+import Time exposing (Time)
 
 
 type alias Level =
     { visibleTiles : List Tile
     , tileSprites : TileSprites
+    , elapsedTime : Time
     }
 
 
@@ -21,17 +23,19 @@ create tilesPath =
     { visibleTiles = tilesAtOffset 0 tilesData
     , tileSprites =
         Data.Sprites.tiles tilesPath
+    , elapsedTime = 0
     }
 
 
-update : Viewport -> Level -> Level
-update viewport level =
+update : Viewport -> Time -> Level -> Level
+update viewport dt level =
     let
         horizontalOffset =
             viewport.x
     in
         { level
             | visibleTiles = tilesAtOffset horizontalOffset tilesData
+            , elapsedTime = level.elapsedTime + dt
         }
 
 
@@ -84,4 +88,4 @@ draw viewport level =
         offset =
             round viewport.x
     in
-        g [] (List.map (\tile -> drawTile (round tile.x) (round tile.y) offset tile.name tileSprites) tiles)
+        g [] (List.map (\tile -> drawTile (round tile.x) (round tile.y) offset tile.name tileSprites level.elapsedTime) tiles)

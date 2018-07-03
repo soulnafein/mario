@@ -5,6 +5,7 @@ import List
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Messages exposing (Msg)
+import Time exposing (Time)
 
 
 type alias CharacterSprites =
@@ -62,11 +63,11 @@ drawCharacter x y offset name action actionDuration direction characterSprites =
         drawSprite (x - offset) y spriteWidth spriteHeight viewbox characterSprites.imageUrl
 
 
-drawTile : Int -> Int -> Int -> String -> TileSprites -> Svg Msg
-drawTile gridX gridY offset name tileSprites =
+drawTile : Int -> Int -> Int -> String -> TileSprites -> Time -> Svg Msg
+drawTile gridX gridY offset name tileSprites elapsedTime =
     let
         viewbox =
-            tileViewbox name tileSprites
+            tileViewbox name tileSprites elapsedTime
 
         spriteSize =
             16
@@ -80,8 +81,8 @@ drawTile gridX gridY offset name tileSprites =
         drawSprite x y spriteSize spriteSize viewbox tileSprites.imageUrl
 
 
-tileViewbox : String -> TileSprites -> String
-tileViewbox name tileSprites =
+tileViewbox : String -> TileSprites -> Time -> String
+tileViewbox name tileSprites elapsedTime =
     let
         sprite =
             tileSprites.sprites
@@ -90,7 +91,7 @@ tileViewbox name tileSprites =
     in
         case sprite of
             Just sprite ->
-                findFrame sprite.frames sprite.animationSpeed 0
+                findFrame sprite.frames sprite.animationSpeed elapsedTime
 
             Nothing ->
                 ""

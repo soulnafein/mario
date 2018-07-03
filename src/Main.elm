@@ -78,7 +78,7 @@ onTimeUpdatePhysicsInterval dt model =
             Viewport.update mario.x mario.horizontalVelocity dt model.viewport
 
         level =
-            Level.update viewport model.level
+            Level.update viewport dt model.level
     in
         { model
             | mario = mario

@@ -66,6 +66,11 @@ friction =
     300
 
 
+type CollisionDirection
+    = Vertical
+    | Horizontal
+
+
 update : Time -> Keys -> List Tile -> Mario -> Mario
 update dt keys solidTiles mario =
     mario
@@ -74,8 +79,10 @@ update dt keys solidTiles mario =
         |> applyJump dt keys
         |> applyFriction dt
         |> applyGravity dt
-        |> updatePosition dt
-        |> checkCollisions solidTiles
+        |> updateVerticalPosition dt
+        |> checkCollisions Vertical solidTiles
+        |> updateHorizontalPosition dt
+        |> checkCollisions Horizontal solidTiles
         |> applyJumpLimit
         |> changeAction dt
 
@@ -126,30 +133,30 @@ applyGravity dt mario =
     { mario | verticalVelocity = mario.verticalVelocity - (gravity * dt) }
 
 
-checkCollisions : List Tile -> Mario -> Mario
-checkCollisions solidTiles mario =
+boundedBox : Float -> Float -> ( Float, Float, Float, Float )
+boundedBox x y =
+    let
+        ceilX =
+            toFloat (ceiling x)
+
+        ceilY =
+            toFloat (ceiling y)
+    in
+        ( ceilY, ceilX + 15, ceilY + 15, ceilX )
+
+
+checkCollisions : CollisionDirection -> List Tile -> Mario -> Mario
+checkCollisions direction solidTiles mario =
     case solidTiles of
         [] ->
             mario
 
         tile :: other ->
-            checkCollisions other (checkCollision tile mario)
+            checkCollisions direction other (checkCollision direction tile mario)
 
 
-boundedBox : Float -> Float -> ( Float, Float, Float, Float )
-boundedBox x y =
-    let
-        ceilX =
-            x
-
-        ceilY =
-            y
-    in
-        ( ceilY, ceilX + 15, ceilY + 15, ceilX )
-
-
-checkCollision : Tile -> Mario -> Mario
-checkCollision tile mario =
+checkCollision : CollisionDirection -> Tile -> Mario -> Mario
+checkCollision direction tile mario =
     let
         ( top, right, bottom, left ) =
             boundedBox mario.x mario.y
@@ -159,20 +166,20 @@ checkCollision tile mario =
 
         hasCollided =
             not
-                ((bottom + 1 < tileTop)
-                    || (top - 1 > tileBottom)
+                ((bottom < tileTop)
+                    || (top > tileBottom)
                     || (left > tileRight)
                     || (right < tileLeft)
                 )
     in
         if hasCollided then
-            applyCollision tile mario
+            applyCollision direction tile mario
         else
             mario
 
 
-applyCollision : Tile -> Mario -> Mario
-applyCollision tile mario =
+applyCollision : CollisionDirection -> Tile -> Mario -> Mario
+applyCollision direction tile mario =
     let
         ( top, right, bottom, left ) =
             boundedBox mario.x mario.y
@@ -184,7 +191,7 @@ applyCollision tile mario =
             boundedBox tile.x tile.y
 
         fromLeft =
-            (oldRight <= tileLeft) && (right >= tileLeft)
+            oldRight < tileLeft
 
         fromRight =
             oldLeft > tileRight
@@ -196,16 +203,22 @@ applyCollision tile mario =
             oldTop > tileBottom
 
         updatedMario =
-            if fromTop then
-                { mario | verticalVelocity = 0, y = tileTop - 16, oldY = mario.y, jumpDistance = 0 }
-            else if fromLeft then
-                { mario | horizontalVelocity = 0, x = tileLeft - 16 }
-            else if fromRight then
-                { mario | horizontalVelocity = 0, x = tileRight + 1 }
-            else if fromBottom then
-                { mario | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
-            else
-                mario
+            case direction of
+                Vertical ->
+                    if fromTop then
+                        { mario | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
+                    else if fromBottom then
+                        { mario | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+                    else
+                        mario
+
+                Horizontal ->
+                    if fromLeft then
+                        { mario | horizontalVelocity = 0, x = tileLeft - 16 }
+                    else if fromRight then
+                        { mario | horizontalVelocity = 0, x = tileRight + 1 }
+                    else
+                        mario
     in
         updatedMario
 

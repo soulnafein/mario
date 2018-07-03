@@ -77,11 +77,11 @@ update dt keys solidTiles mario =
         |> updatePosition dt
         |> checkCollisions solidTiles
         |> applyJumpLimit
-        |> changeAction
+        |> changeAction dt
 
 
-changeAction : Mario -> Mario
-changeAction mario =
+changeAction : Time -> Mario -> Mario
+changeAction dt mario =
     let
         ( action, duration ) =
             if mario.verticalVelocity > 0 then
@@ -91,7 +91,7 @@ changeAction mario =
             else if mario.horizontalVelocity > 0 then
                 case mario.action of
                     Walking ->
-                        ( mario.action, mario.actionDuration )
+                        ( mario.action, mario.actionDuration + dt )
 
                     _ ->
                         ( Walking, 0 )
@@ -138,7 +138,14 @@ checkCollisions solidTiles mario =
 
 boundedBox : Float -> Float -> ( Float, Float, Float, Float )
 boundedBox x y =
-    ( y, x + 15, y + 15, x )
+    let
+        ceilX =
+            x
+
+        ceilY =
+            y
+    in
+        ( ceilY, ceilX + 15, ceilY + 15, ceilX )
 
 
 checkCollision : Tile -> Mario -> Mario
@@ -203,8 +210,8 @@ applyCollision tile mario =
         updatedMario
 
 
-updatePosition : Time -> Mario -> Mario
-updatePosition dt mario =
+updateHorizontalPosition : Time -> Mario -> Mario
+updateHorizontalPosition dt mario =
     let
         horizontalMovementAmount =
             mario.horizontalVelocity * dt
@@ -214,7 +221,16 @@ updatePosition dt mario =
 
         x =
             applyHorizontalMovement mario.direction mario.x horizontalMovementAmount
+    in
+        { mario
+            | x = x
+            , oldX = oldX
+        }
 
+
+updateVerticalPosition : Time -> Mario -> Mario
+updateVerticalPosition dt mario =
+    let
         verticalMovementAmount =
             mario.verticalVelocity * dt
 
@@ -234,24 +250,19 @@ updatePosition dt mario =
 
                 _ ->
                     mario.jumpDistance
-
-        ( action, duration ) =
-            case mario.action of
-                Walking ->
-                    ( Walking, (mario.actionDuration + dt) )
-
-                _ ->
-                    ( mario.action, mario.actionDuration )
     in
         { mario
-            | x = x
-            , y = y
-            , oldX = oldX
+            | y = y
             , oldY = oldY
             , jumpDistance = jumpDistance
-            , action = action
-            , actionDuration = duration
         }
+
+
+updatePosition : Time -> Mario -> Mario
+updatePosition dt mario =
+    mario
+        |> updateHorizontalPosition dt
+        |> updateVerticalPosition dt
 
 
 applyHorizontalMovement : Direction -> Float -> Float -> Float

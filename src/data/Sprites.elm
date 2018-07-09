@@ -1,6 +1,7 @@
 module Data.Sprites exposing (characters, tiles)
 
-import Sprites exposing (CharacterSprites, TileSprites, Direction(..), Action(..))
+import Entities exposing (Action(..), Direction(..))
+import Sprites exposing (CharacterSprites, TileSprites)
 import Array
 
 
@@ -179,6 +180,30 @@ characters imageUrl =
           , direction = Right
           , frames = Array.fromList [ [ 291, 44, 16, 16 ], [ 304, 44, 16, 16 ], [ 320, 44, 16, 16 ] ]
           , animationSpeed = 0.25
+          }
+        , { name = "goomba"
+          , action = Falling
+          , direction = Right
+          , frames = Array.fromList [ [ 296, 187, 16, 16 ], [ 315, 187, 16, 16 ] ]
+          , animationSpeed = 0.5
+          }
+        , { name = "goomba"
+          , action = Falling
+          , direction = Left
+          , frames = Array.fromList [ [ 296, 187, 16, 16 ], [ 315, 187, 16, 16 ] ]
+          , animationSpeed = 0.5
+          }
+        , { name = "goomba"
+          , action = Walking
+          , direction = Right
+          , frames = Array.fromList [ [ 296, 187, 16, 16 ], [ 315, 187, 16, 16 ] ]
+          , animationSpeed = 0.5
+          }
+        , { name = "goomba"
+          , action = Walking
+          , direction = Left
+          , frames = Array.fromList [ [ 296, 187, 16, 16 ], [ 315, 187, 16, 16 ] ]
+          , animationSpeed = 0.5
           }
         ]
     }

@@ -56,8 +56,8 @@ tilesAtOffset offset tiles =
         result
 
 
-solidTiles : ( Float, Float, Float, Float ) -> Level -> List Tile
-solidTiles ( top, right, bottom, left ) level =
+solidTiles : Level -> List Tile
+solidTiles level =
     level.visibleTiles
         |> List.filter .isSolid
         |> List.map
@@ -66,13 +66,6 @@ solidTiles ( top, right, bottom, left ) level =
                     | x = tile.x * 16
                     , y = tile.y * 16
                 }
-            )
-        |> List.filter
-            (\t ->
-                (t.y > top)
-                    && (t.y < bottom)
-                    && (t.x > left)
-                    && (t.x < right)
             )
 
 

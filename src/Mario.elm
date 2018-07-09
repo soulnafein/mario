@@ -2,30 +2,10 @@ module Mario exposing (..)
 
 import Keys exposing (Keys)
 import Time exposing (Time)
-import Data.Level exposing (Tile)
-import Sprites exposing (Direction(..), Action(..))
-import Sprites exposing (CharacterSprites, drawCharacter)
-import Svg exposing (Svg)
-import Messages exposing (Msg)
-import Viewport exposing (Viewport)
+import Entities exposing (Entity, EntityType(Mario), Direction(..), Action(..))
 
 
-type alias Mario =
-    { x : Float
-    , y : Float
-    , oldX : Float
-    , oldY : Float
-    , direction : Direction
-    , action : Action
-    , actionDuration : Float
-    , horizontalVelocity : Float
-    , verticalVelocity : Float
-    , jumpDistance : Float
-    , justJumped : Bool
-    }
-
-
-create : Mario
+create : Entity
 create =
     { x = 0
     , y = 0
@@ -38,17 +18,13 @@ create =
     , verticalVelocity = 0
     , jumpDistance = 0
     , justJumped = False
+    , type_ = Mario
     }
 
 
 jumpSpeed : Float
 jumpSpeed =
     350
-
-
-gravity : Float
-gravity =
-    1000
 
 
 jumpLimit : Float
@@ -61,33 +37,17 @@ walkingSpeed =
     100
 
 
-friction : Float
-friction =
-    300
-
-
-type CollisionDirection
-    = Vertical
-    | Horizontal
-
-
-update : Time -> Keys -> List Tile -> Mario -> Mario
-update dt keys solidTiles mario =
+update : Time -> Keys -> Entity -> Entity
+update dt keys mario =
     mario
+        |> applyJumpLimit
+        |> changeAction dt
         |> applyLeftMovement dt keys
         |> applyRightMovement dt keys
         |> applyJump dt keys
-        |> applyFriction dt
-        |> applyGravity dt
-        |> updateVerticalPosition dt
-        |> checkCollisions Vertical solidTiles
-        |> updateHorizontalPosition dt
-        |> checkCollisions Horizontal solidTiles
-        |> applyJumpLimit
-        |> changeAction dt
 
 
-changeAction : Time -> Mario -> Mario
+changeAction : Time -> Entity -> Entity
 changeAction dt mario =
     let
         ( action, duration ) =
@@ -108,19 +68,7 @@ changeAction dt mario =
         { mario | action = action, actionDuration = duration }
 
 
-applyFriction : Time -> Mario -> Mario
-applyFriction dt mario =
-    let
-        horizontalVelocity =
-            if mario.horizontalVelocity <= 0 then
-                0
-            else
-                mario.horizontalVelocity - (friction * dt)
-    in
-        { mario | horizontalVelocity = horizontalVelocity }
-
-
-applyJumpLimit : Mario -> Mario
+applyJumpLimit : Entity -> Entity
 applyJumpLimit mario =
     if mario.jumpDistance > jumpLimit then
         { mario | verticalVelocity = -1 }
@@ -128,179 +76,7 @@ applyJumpLimit mario =
         mario
 
 
-applyGravity : Time -> Mario -> Mario
-applyGravity dt mario =
-    { mario | verticalVelocity = mario.verticalVelocity - (gravity * dt) }
-
-
-boundedBox : Float -> Float -> ( Float, Float, Float, Float )
-boundedBox x y =
-    let
-        ceilX =
-            toFloat (ceiling x)
-
-        ceilY =
-            toFloat (ceiling y)
-    in
-        ( ceilY, ceilX + 15, ceilY + 15, ceilX )
-
-
-checkCollisions : CollisionDirection -> List Tile -> Mario -> Mario
-checkCollisions direction solidTiles mario =
-    case solidTiles of
-        [] ->
-            mario
-
-        tile :: other ->
-            checkCollisions direction other (checkCollision direction tile mario)
-
-
-checkCollision : CollisionDirection -> Tile -> Mario -> Mario
-checkCollision direction tile mario =
-    let
-        ( top, right, bottom, left ) =
-            boundedBox mario.x mario.y
-
-        ( tileTop, tileRight, tileBottom, tileLeft ) =
-            boundedBox tile.x tile.y
-
-        hasCollided =
-            not
-                ((bottom < tileTop)
-                    || (top > tileBottom)
-                    || (left > tileRight)
-                    || (right < tileLeft)
-                )
-    in
-        if hasCollided then
-            applyCollision direction tile mario
-        else
-            mario
-
-
-applyCollision : CollisionDirection -> Tile -> Mario -> Mario
-applyCollision direction tile mario =
-    let
-        ( top, right, bottom, left ) =
-            boundedBox mario.x mario.y
-
-        ( oldTop, oldRight, oldBottom, oldLeft ) =
-            boundedBox mario.oldX mario.oldY
-
-        ( tileTop, tileRight, tileBottom, tileLeft ) =
-            boundedBox tile.x tile.y
-
-        fromLeft =
-            oldRight < tileLeft
-
-        fromRight =
-            oldLeft > tileRight
-
-        fromTop =
-            oldBottom < tileTop
-
-        fromBottom =
-            oldTop > tileBottom
-
-        updatedMario =
-            case direction of
-                Vertical ->
-                    if fromTop then
-                        { mario | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
-                    else if fromBottom then
-                        { mario | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
-                    else
-                        mario
-
-                Horizontal ->
-                    if fromLeft then
-                        { mario | horizontalVelocity = 0, x = tileLeft - 16 }
-                    else if fromRight then
-                        { mario | horizontalVelocity = 0, x = tileRight + 1 }
-                    else
-                        mario
-    in
-        updatedMario
-
-
-updateHorizontalPosition : Time -> Mario -> Mario
-updateHorizontalPosition dt mario =
-    let
-        horizontalMovementAmount =
-            mario.horizontalVelocity * dt
-
-        oldX =
-            mario.x
-
-        x =
-            applyHorizontalMovement mario.direction mario.x horizontalMovementAmount
-    in
-        { mario
-            | x = x
-            , oldX = oldX
-        }
-
-
-updateVerticalPosition : Time -> Mario -> Mario
-updateVerticalPosition dt mario =
-    let
-        verticalMovementAmount =
-            mario.verticalVelocity * dt
-
-        oldY =
-            mario.y
-
-        y =
-            mario.y - verticalMovementAmount
-
-        jumpDistance =
-            case mario.action of
-                Jumping ->
-                    mario.jumpDistance + verticalMovementAmount
-
-                Falling ->
-                    mario.jumpDistance + verticalMovementAmount
-
-                _ ->
-                    mario.jumpDistance
-    in
-        { mario
-            | y = y
-            , oldY = oldY
-            , jumpDistance = jumpDistance
-        }
-
-
-updatePosition : Time -> Mario -> Mario
-updatePosition dt mario =
-    mario
-        |> updateHorizontalPosition dt
-        |> updateVerticalPosition dt
-
-
-applyHorizontalMovement : Direction -> Float -> Float -> Float
-applyHorizontalMovement direction x horizontalMovementAmount =
-    case direction of
-        Left ->
-            x - horizontalMovementAmount
-
-        Right ->
-            x + horizontalMovementAmount
-
-
-applyMidScreenWall : Float -> Float
-applyMidScreenWall x =
-    let
-        midScreenX =
-            100
-    in
-        if x > midScreenX then
-            midScreenX
-        else
-            x
-
-
-applyLeftMovement : Time -> Keys -> Mario -> Mario
+applyLeftMovement : Time -> Keys -> Entity -> Entity
 applyLeftMovement dt keys mario =
     if keys.leftPressed then
         mario
@@ -310,7 +86,7 @@ applyLeftMovement dt keys mario =
         mario
 
 
-applyRightMovement : Time -> Keys -> Mario -> Mario
+applyRightMovement : Time -> Keys -> Entity -> Entity
 applyRightMovement dt keys mario =
     if keys.rightPressed then
         mario
@@ -320,12 +96,7 @@ applyRightMovement dt keys mario =
         mario
 
 
-isWalkingPastTheMiddleOfTheLevel : Mario -> Float -> Bool
-isWalkingPastTheMiddleOfTheLevel mario offset =
-    (mario.x - offset) > 100
-
-
-applyJump : Time -> Keys -> Mario -> Mario
+applyJump : Time -> Keys -> Entity -> Entity
 applyJump dt keys mario =
     let
         velocity =
@@ -360,31 +131,16 @@ applyJump dt keys mario =
             updatedMario
 
 
-changeDirection : Direction -> Mario -> Mario
+changeDirection : Direction -> Entity -> Entity
 changeDirection direction mario =
     { mario | direction = direction }
 
 
-updateHorizontalVelocity : Float -> Mario -> Mario
+updateHorizontalVelocity : Float -> Entity -> Entity
 updateHorizontalVelocity velocity mario =
     { mario | horizontalVelocity = velocity }
 
 
-updateVerticalVelocity : Float -> Mario -> Mario
+updateVerticalVelocity : Float -> Entity -> Entity
 updateVerticalVelocity velocity mario =
     { mario | verticalVelocity = velocity }
-
-
-draw : Mario -> Viewport -> CharacterSprites -> Svg Msg
-draw mario viewport characterSprites =
-    let
-        xPos =
-            round mario.x
-
-        yPos =
-            round mario.y
-
-        offset =
-            round viewport.x
-    in
-        drawCharacter xPos yPos offset "mario" mario.action mario.actionDuration mario.direction characterSprites

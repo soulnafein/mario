@@ -5,20 +5,25 @@ import Svg.Attributes exposing (..)
 import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Mario as Mario
-import Level as Level
-import Viewport as Viewport
-import Keys as Keys
+import Mario
+import Goomba
+import Level
+import Data.Level exposing (Tile)
+import Viewport
+import Keys
 import Sprites exposing (..)
 import Messages exposing (Msg(..))
 import Data.Sprites
+import Physics
+import Entities exposing (Entity)
+import Time exposing (Time)
 
 
 ---- MODEL ----
 
 
 type alias Model =
-    { mario : Mario.Mario
+    { entities : List Entity
     , level : Level.Level
     , viewport : Viewport.Viewport
     , keys : Keys.Keys
@@ -35,7 +40,7 @@ type alias Flags =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { mario = Mario.create
+    ( { entities = [ Mario.create, Goomba.create ]
       , level = Level.create flags.tilesPath
       , viewport = Viewport.create
       , keys = Keys.create
@@ -50,29 +55,20 @@ init flags =
 ---- UPDATE ----
 
 
-onTimeUpdatePhysicsInterval : Float -> Model -> Model
+onTimeUpdatePhysicsInterval : Time -> Model -> Model
 onTimeUpdatePhysicsInterval dt model =
     let
-        top =
-            model.mario.y - 32
+        mario =
+            getMario model.entities
 
-        right =
-            model.mario.x + 64
-
-        bottom =
-            model.mario.y + 64
-
-        left =
-            model.mario.x - 32
-
-        rectangle =
-            ( top, right, bottom, left )
+        keys =
+            model.keys
 
         solidTiles =
-            Level.solidTiles rectangle model.level
+            Level.solidTiles model.level
 
-        mario =
-            Mario.update dt model.keys solidTiles model.mario
+        entities =
+            List.map (updateEntity dt keys solidTiles) model.entities
 
         viewport =
             Viewport.update mario.x mario.horizontalVelocity dt model.viewport
@@ -81,10 +77,32 @@ onTimeUpdatePhysicsInterval dt model =
             Level.update viewport dt model.level
     in
         { model
-            | mario = mario
+            | entities = entities
             , level = level
             , viewport = viewport
         }
+
+
+getMario : List Entity -> Entity
+getMario entities =
+    entities
+        |> List.filter (\e -> e.type_ == Entities.Mario)
+        |> List.head
+        |> Maybe.withDefault Mario.create
+
+
+updateEntity : Time -> Keys.Keys -> List Tile -> Entity -> Entity
+updateEntity dt keys solidTiles entity =
+    let
+        updatedEntity =
+            case entity.type_ of
+                Entities.Mario ->
+                    Mario.update dt keys entity
+
+                Entities.Goomba ->
+                    Goomba.update dt entity
+    in
+        Physics.update dt solidTiles updatedEntity
 
 
 physicsInterval : Float
@@ -92,7 +110,7 @@ physicsInterval =
     0.01
 
 
-onTimeUpdate : Float -> Model -> Model
+onTimeUpdate : Time -> Model -> Model
 onTimeUpdate dt model =
     if dt > physicsInterval then
         onTimeUpdatePhysicsInterval physicsInterval model
@@ -153,11 +171,17 @@ view model =
             , height "672"
             , viewBox "0 0 256 224"
             ]
-            [ rect [ width "100%", height "100%", fill "#73ADF9" ] []
-            , Level.draw model.viewport model.level
-            , Mario.draw model.mario model.viewport model.characterSprites
-            ]
+            ([ rect [ width "100%", height "100%", fill "#73ADF9" ] []
+             , Level.draw model.viewport model.level
+             ]
+                ++ (viewEntities model.viewport model.characterSprites model.entities)
+            )
         ]
+
+
+viewEntities : Viewport.Viewport -> CharacterSprites -> List Entity -> List (Svg Msg)
+viewEntities viewport characterSprites entities =
+    List.map (Sprites.drawEntity viewport characterSprites) entities
 
 
 subscriptions : Model -> Sub Msg

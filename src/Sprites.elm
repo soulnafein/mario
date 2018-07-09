@@ -1,4 +1,4 @@
-module Sprites exposing (CharacterSprites, TileSprites, drawCharacter, drawTile, Action(..), Direction(..))
+module Sprites exposing (CharacterSprites, TileSprites, drawTile, drawEntity)
 
 import Array exposing (Array)
 import List
@@ -6,6 +6,8 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Messages exposing (Msg)
 import Time exposing (Time)
+import Entities exposing (EntityType, Action, Direction, Entity)
+import Viewport exposing (Viewport)
 
 
 type alias CharacterSprites =
@@ -36,23 +38,19 @@ type alias TileSprite =
     }
 
 
-type Action
-    = Jumping
-    | Standing
-    | Falling
-    | Walking
-
-
-type Direction
-    = Left
-    | Right
-
-
-drawCharacter : Int -> Int -> Int -> String -> Action -> Float -> Direction -> CharacterSprites -> Svg Msg
-drawCharacter x y offset name action actionDuration direction characterSprites =
+drawCharacter : Int -> Int -> Int -> EntityType -> Action -> Float -> Direction -> CharacterSprites -> Svg Msg
+drawCharacter x y offset entityType action actionDuration direction characterSprites =
     let
+        spriteName =
+            case entityType of
+                Entities.Mario ->
+                    "mario"
+
+                Entities.Goomba ->
+                    "goomba"
+
         viewbox =
-            findFrames name action actionDuration direction characterSprites
+            findFrames spriteName action actionDuration direction characterSprites
 
         spriteWidth =
             16
@@ -142,3 +140,18 @@ drawSprite xPos yPos spriteWidth spriteHeight spriteViewbox path =
     svg [ x (px xPos), y (px yPos), width (px spriteWidth), height (px spriteHeight), viewBox spriteViewbox ]
         [ image [ imageRendering "pixelated", xlinkHref path ] []
         ]
+
+
+drawEntity : Viewport -> CharacterSprites -> Entity -> Svg Msg
+drawEntity viewport characterSprites entity =
+    let
+        xPos =
+            round entity.x
+
+        yPos =
+            round entity.y
+
+        offset =
+            round viewport.x
+    in
+        drawCharacter xPos yPos offset entity.type_ entity.action entity.actionDuration entity.direction characterSprites

@@ -23,17 +23,19 @@ type alias State =
     , keys : Keys.Keys
     , characterSprites : CharacterSprites
     , gameRunning : Bool
+    , lastSpawnedEnemyX : Float
     }
 
 
 init : String -> String -> State
 init tilesPath charactersPath =
-    { entities = [ Mario.create, Goomba.create ]
+    { entities = [ Mario.create, Goomba.create 200 0 ]
     , level = Level.create tilesPath
     , viewport = Viewport.create
     , keys = Keys.create
     , characterSprites = Data.Sprites.characters charactersPath
     , gameRunning = True
+    , lastSpawnedEnemyX = 0
     }
 
 
@@ -49,8 +51,15 @@ update dt state =
         solidTiles =
             Level.solidTiles state.level
 
+        spawnedEntities =
+            spawnEntities state.viewport.x state.lastSpawnedEnemyX Data.Level.enemiesData
+
+        lastSpawnedEnemyX =
+            List.maximum (List.map .x spawnedEntities)
+                |> Maybe.withDefault state.lastSpawnedEnemyX
+
         entities =
-            List.map (updateEntity dt keys solidTiles) state.entities
+            List.map (updateEntity dt keys solidTiles) (state.entities ++ spawnedEntities)
 
         viewport =
             Viewport.update mario.x mario.horizontalVelocity dt state.viewport
@@ -62,7 +71,14 @@ update dt state =
             | entities = entities
             , level = level
             , viewport = viewport
+            , lastSpawnedEnemyX = lastSpawnedEnemyX
         }
+
+
+spawnEntities : Float -> Float -> List Entity -> List Entity
+spawnEntities offset lastSpawnedEnemyX entitiesData =
+    entitiesData
+        |> List.filter (\e -> (e.x > lastSpawnedEnemyX) && (e.x > offset + 100) && (e.x < offset + 300))
 
 
 view : State -> Svg Msg

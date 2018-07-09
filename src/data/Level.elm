@@ -1,7 +1,9 @@
-module Data.Level exposing (tilesData, Tile)
+module Data.Level exposing (tilesData, enemiesData, Tile)
 
 import Dict exposing (Dict)
 import Exts.Dict exposing (groupBy)
+import Entities exposing (Entity)
+import Goomba
 
 
 type alias Tile =
@@ -17,6 +19,13 @@ type alias TileRange =
     , rectangle : ( Int, Int, Int, Int )
     , isSolid : Bool
     }
+
+
+enemiesData : List Entity
+enemiesData =
+    [ Goomba.create 400 0
+    , Goomba.create 500 50
+    ]
 
 
 tilesData : Dict Float (List Tile)

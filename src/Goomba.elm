@@ -4,10 +4,10 @@ import Time exposing (Time)
 import Entities exposing (Entity, EntityType(Goomba), Direction(..), Action(..))
 
 
-create : Entity
-create =
-    { x = 200
-    , y = 0
+create : Float -> Float -> Entity
+create x y =
+    { x = x
+    , y = y
     , oldX = 0
     , oldY = 0
     , direction = Left

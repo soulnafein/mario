@@ -1,35 +1,14 @@
 module Main exposing (..)
 
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
 import Html exposing (Html)
 import AnimationFrame
 import Keyboard exposing (KeyCode)
-import Mario
-import Goomba
-import Level
-import Data.Level exposing (Tile)
-import Viewport
-import Keys
-import Sprites exposing (..)
 import Messages exposing (Msg(..))
-import Data.Sprites
-import Physics
-import Entities exposing (Entity)
+import Game exposing (State)
 import Time exposing (Time)
 
 
 ---- MODEL ----
-
-
-type alias Model =
-    { entities : List Entity
-    , level : Level.Level
-    , viewport : Viewport.Viewport
-    , keys : Keys.Keys
-    , characterSprites : CharacterSprites
-    , gameRunning : Bool
-    }
 
 
 type alias Flags =
@@ -38,15 +17,9 @@ type alias Flags =
     }
 
 
-init : Flags -> ( Model, Cmd Msg )
+init : Flags -> ( State, Cmd Msg )
 init flags =
-    ( { entities = [ Mario.create, Goomba.create ]
-      , level = Level.create flags.tilesPath
-      , viewport = Viewport.create
-      , keys = Keys.create
-      , characterSprites = Data.Sprites.characters flags.charactersPath
-      , gameRunning = True
-      }
+    ( Game.init flags.tilesPath flags.charactersPath
     , Cmd.none
     )
 
@@ -55,54 +28,9 @@ init flags =
 ---- UPDATE ----
 
 
-onTimeUpdatePhysicsInterval : Time -> Model -> Model
+onTimeUpdatePhysicsInterval : Time -> State -> State
 onTimeUpdatePhysicsInterval dt model =
-    let
-        mario =
-            getMario model.entities
-
-        keys =
-            model.keys
-
-        solidTiles =
-            Level.solidTiles model.level
-
-        entities =
-            List.map (updateEntity dt keys solidTiles) model.entities
-
-        viewport =
-            Viewport.update mario.x mario.horizontalVelocity dt model.viewport
-
-        level =
-            Level.update viewport dt model.level
-    in
-        { model
-            | entities = entities
-            , level = level
-            , viewport = viewport
-        }
-
-
-getMario : List Entity -> Entity
-getMario entities =
-    entities
-        |> List.filter (\e -> e.type_ == Entities.Mario)
-        |> List.head
-        |> Maybe.withDefault Mario.create
-
-
-updateEntity : Time -> Keys.Keys -> List Tile -> Entity -> Entity
-updateEntity dt keys solidTiles entity =
-    let
-        updatedEntity =
-            case entity.type_ of
-                Entities.Mario ->
-                    Mario.update dt keys entity
-
-                Entities.Goomba ->
-                    Goomba.update dt entity
-    in
-        Physics.update dt solidTiles updatedEntity
+    Game.update dt model
 
 
 physicsInterval : Float
@@ -110,16 +38,16 @@ physicsInterval =
     0.01
 
 
-onTimeUpdate : Time -> Model -> Model
+onTimeUpdate : Time -> State -> State
 onTimeUpdate dt model =
     if dt > physicsInterval then
-        onTimeUpdatePhysicsInterval physicsInterval model
+        Game.update physicsInterval model
             |> onTimeUpdate (dt - physicsInterval)
     else
-        onTimeUpdatePhysicsInterval dt model
+        Game.update dt model
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> State -> ( State, Cmd Msg )
 update msg model =
     case msg of
         TimeUpdate dt ->
@@ -163,28 +91,12 @@ update msg model =
 ---- VIEW ----
 
 
-view : Model -> Html Msg
+view : State -> Html Msg
 view model =
-    Html.div []
-        [ svg
-            [ width "768"
-            , height "672"
-            , viewBox "0 0 256 224"
-            ]
-            ([ rect [ width "100%", height "100%", fill "#73ADF9" ] []
-             , Level.draw model.viewport model.level
-             ]
-                ++ (viewEntities model.viewport model.characterSprites model.entities)
-            )
-        ]
+    Html.div [] [ Game.view model ]
 
 
-viewEntities : Viewport.Viewport -> CharacterSprites -> List Entity -> List (Svg Msg)
-viewEntities viewport characterSprites entities =
-    List.map (Sprites.drawEntity viewport characterSprites) entities
-
-
-subscriptions : Model -> Sub Msg
+subscriptions : State -> Sub Msg
 subscriptions model =
     let
         subs =
@@ -203,7 +115,7 @@ subscriptions model =
 ---- PROGRAM ----
 
 
-main : Program Flags Model Msg
+main : Program Flags State Msg
 main =
     Html.programWithFlags
         { view = view

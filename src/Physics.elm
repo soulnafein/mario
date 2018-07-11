@@ -1,8 +1,10 @@
 module Physics exposing (update)
 
 import Time exposing (Time)
-import Data.Level exposing (Tile)
+import Tile exposing (Tile)
 import Entities exposing (Entity, Direction(..), Action(..))
+import Entities.Entity
+import Physics.CollisionType exposing (CollisionType(..))
 
 
 friction : Float
@@ -99,11 +101,11 @@ applyCollision direction tile entity =
         ( top, right, bottom, left ) =
             boundedBox entity.x entity.y
 
-        ( oldTop, oldRight, oldBottom, oldLeft ) =
-            boundedBox entity.oldX entity.oldY
-
         ( tileTop, tileRight, tileBottom, tileLeft ) =
             boundedBox tile.x tile.y
+
+        ( oldTop, oldRight, oldBottom, oldLeft ) =
+            boundedBox entity.oldX entity.oldY
 
         fromLeft =
             oldRight < tileLeft
@@ -121,17 +123,17 @@ applyCollision direction tile entity =
             case direction of
                 Vertical ->
                     if fromTop then
-                        { entity | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
+                        Entities.Entity.resolveCollision FromTop tile entity
                     else if fromBottom then
-                        { entity | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+                        Entities.Entity.resolveCollision FromBottom tile entity
                     else
                         entity
 
                 Horizontal ->
                     if fromLeft then
-                        { entity | horizontalVelocity = 0, x = tileLeft - 16 }
+                        Entities.Entity.resolveCollision FromLeft tile entity
                     else if fromRight then
-                        { entity | horizontalVelocity = 0, x = tileRight + 1 }
+                        Entities.Entity.resolveCollision FromRight tile entity
                     else
                         entity
     in

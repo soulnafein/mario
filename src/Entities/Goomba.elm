@@ -1,7 +1,9 @@
-module Goomba exposing (..)
+module Entities.Goomba exposing (..)
 
 import Time exposing (Time)
 import Entities exposing (Entity, EntityType(Goomba), Direction(..), Action(..))
+import Physics.CollisionType exposing (CollisionType(..))
+import Tile exposing (Tile)
 
 
 create : Float -> Float -> Entity
@@ -33,6 +35,38 @@ update dt goomba =
         |> move dt
 
 
+boundedBox : Float -> Float -> ( Float, Float, Float, Float )
+boundedBox x y =
+    let
+        ceilX =
+            toFloat (ceiling x)
+
+        ceilY =
+            toFloat (ceiling y)
+    in
+        ( ceilY, ceilX + 15, ceilY + 15, ceilX )
+
+
+resolveCollision : CollisionType -> Tile -> Entity -> Entity
+resolveCollision collisionType tile entity =
+    let
+        ( tileTop, tileRight, tileBottom, tileLeft ) =
+            boundedBox tile.x tile.y
+    in
+        case collisionType of
+            FromTop ->
+                { entity | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
+
+            FromBottom ->
+                { entity | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+
+            FromLeft ->
+                { entity | x = tileLeft - 16, direction = Left }
+
+            FromRight ->
+                { entity | x = tileRight + 1, direction = Right }
+
+
 changeAction : Time -> Entity -> Entity
 changeAction dt goomba =
     let
@@ -58,7 +92,6 @@ move : Time -> Entity -> Entity
 move dt goomba =
     goomba
         |> updateHorizontalVelocity walkingSpeed
-        |> changeDirection Left
 
 
 changeDirection : Direction -> Entity -> Entity

@@ -9,10 +9,12 @@ import Sprites exposing (CharacterSprites)
 import Svg exposing (Svg, svg, rect)
 import Svg.Attributes exposing (width, height, viewBox, fill)
 import Messages exposing (Msg(..))
-import Mario
-import Goomba
+import Entities.Mario as Mario
+import Entities.Goomba as Goomba
+import Entities.Entity
 import Physics
-import Data.Level exposing (Tile)
+import Tile exposing (Tile)
+import Data.Level
 import Data.Sprites
 
 
@@ -59,7 +61,10 @@ update dt state =
                 |> Maybe.withDefault state.lastSpawnedEnemyX
 
         entities =
-            List.map (updateEntity dt keys solidTiles) (state.entities ++ spawnedEntities)
+            spawnedEntities ++ state.entities
+
+        updatedEntities =
+            List.map (updateEntities dt keys solidTiles) entities
 
         viewport =
             Viewport.update mario.x mario.horizontalVelocity dt state.viewport
@@ -68,11 +73,18 @@ update dt state =
             Level.update viewport dt state.level
     in
         { state
-            | entities = entities
+            | entities = updatedEntities
             , level = level
             , viewport = viewport
             , lastSpawnedEnemyX = lastSpawnedEnemyX
         }
+
+
+updateEntities : Time -> Keys.Keys -> List Tile -> Entity -> Entity
+updateEntities dt keys solidTiles entity =
+    entity
+        |> Entities.Entity.update dt keys solidTiles
+        |> Physics.update dt solidTiles
 
 
 spawnEntities : Float -> Float -> List Entity -> List Entity
@@ -101,20 +113,6 @@ getMario entities =
         |> List.filter (\e -> e.type_ == Entities.Mario)
         |> List.head
         |> Maybe.withDefault Mario.create
-
-
-updateEntity : Time -> Keys.Keys -> List Tile -> Entity -> Entity
-updateEntity dt keys solidTiles entity =
-    let
-        updatedEntity =
-            case entity.type_ of
-                Entities.Mario ->
-                    Mario.update dt keys entity
-
-                Entities.Goomba ->
-                    Goomba.update dt entity
-    in
-        Physics.update dt solidTiles updatedEntity
 
 
 viewEntities : Viewport.Viewport -> CharacterSprites -> List Entity -> List (Svg Msg)

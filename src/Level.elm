@@ -6,9 +6,10 @@ import Svg
 import Messages exposing (Msg)
 import Data.Sprites
 import Dict exposing (Dict)
-import Data.Level exposing (tilesData, Tile)
+import Data.Level exposing (tilesData)
 import Viewport exposing (Viewport)
 import Time exposing (Time)
+import Tile exposing (Tile)
 
 
 type alias Level =

@@ -1,8 +1,10 @@
-module Mario exposing (..)
+module Entities.Mario exposing (..)
 
 import Keys exposing (Keys)
 import Time exposing (Time)
 import Entities exposing (Entity, EntityType(Mario), Direction(..), Action(..))
+import Physics.CollisionType exposing (CollisionType(..))
+import Tile exposing (Tile)
 
 
 create : Entity
@@ -45,6 +47,38 @@ update dt keys mario =
         |> applyLeftMovement dt keys
         |> applyRightMovement dt keys
         |> applyJump dt keys
+
+
+boundedBox : Float -> Float -> ( Float, Float, Float, Float )
+boundedBox x y =
+    let
+        ceilX =
+            toFloat (ceiling x)
+
+        ceilY =
+            toFloat (ceiling y)
+    in
+        ( ceilY, ceilX + 15, ceilY + 15, ceilX )
+
+
+resolveCollision : CollisionType -> Tile -> Entity -> Entity
+resolveCollision collisionType tile entity =
+    let
+        ( tileTop, tileRight, tileBottom, tileLeft ) =
+            boundedBox tile.x tile.y
+    in
+        case collisionType of
+            FromTop ->
+                { entity | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
+
+            FromBottom ->
+                { entity | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+
+            FromLeft ->
+                { entity | horizontalVelocity = 0, x = tileLeft - 16 }
+
+            FromRight ->
+                { entity | horizontalVelocity = 0, x = tileRight + 1 }
 
 
 changeAction : Time -> Entity -> Entity

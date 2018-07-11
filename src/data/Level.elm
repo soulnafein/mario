@@ -1,17 +1,10 @@
-module Data.Level exposing (tilesData, enemiesData, Tile)
+module Data.Level exposing (tilesData, enemiesData)
 
 import Dict exposing (Dict)
 import Exts.Dict exposing (groupBy)
 import Entities exposing (Entity)
-import Goomba
-
-
-type alias Tile =
-    { x : Float
-    , y : Float
-    , name : String
-    , isSolid : Bool
-    }
+import Entities.Goomba as Goomba
+import Tile exposing (Tile)
 
 
 type alias TileRange =

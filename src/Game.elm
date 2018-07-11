@@ -31,7 +31,7 @@ type alias State =
 
 init : String -> String -> State
 init tilesPath charactersPath =
-    { entities = [ Mario.create, Goomba.create 200 0 ]
+    { entities = [ Mario.create ]
     , level = Level.create tilesPath
     , viewport = Viewport.create
     , keys = Keys.create

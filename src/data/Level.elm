@@ -14,10 +14,29 @@ type alias TileRange =
     }
 
 
+gridToPixels : Float -> Float
+gridToPixels number =
+    number * 16
+
+
 enemiesData : List Entity
 enemiesData =
-    [ Goomba.create 400 0
-    , Goomba.create 500 50
+    [ Goomba.create (gridToPixels 22) (gridToPixels 10)
+    , Goomba.create (gridToPixels 40) (gridToPixels 10)
+    , Goomba.create (gridToPixels 51) (gridToPixels 10)
+    , Goomba.create ((gridToPixels 52) + 8) (gridToPixels 10)
+    , Goomba.create (gridToPixels 80) 0
+    , Goomba.create (gridToPixels 82) 0
+    , Goomba.create (gridToPixels 97) (gridToPixels 10)
+    , Goomba.create ((gridToPixels 98) + 8) (gridToPixels 10)
+    , Goomba.create (gridToPixels 114) (gridToPixels 10)
+    , Goomba.create ((gridToPixels 115) + 8) (gridToPixels 10)
+    , Goomba.create (gridToPixels 124) (gridToPixels 10)
+    , Goomba.create ((gridToPixels 125) + 8) (gridToPixels 10)
+    , Goomba.create (gridToPixels 128) (gridToPixels 10)
+    , Goomba.create ((gridToPixels 129) + 8) (gridToPixels 10)
+    , Goomba.create (gridToPixels 174) (gridToPixels 10)
+    , Goomba.create ((gridToPixels 175) + 8) (gridToPixels 10)
     ]
 
 

@@ -55,16 +55,26 @@ resolveCollision collisionType tile entity =
     in
         case collisionType of
             FromTop ->
-                { entity | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
+                entity
+                    |> Entity.updateY (tileTop - 16)
+                    |> Entity.updateVerticalVelocity 0
+                    |> Entity.updateJumpDistance 0
 
             FromBottom ->
-                { entity | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+                entity
+                    |> Entity.updateY (tileBottom + 1)
+                    |> Entity.updateVerticalVelocity -1
+                    |> Entity.updateJumpDistance 0
 
             FromLeft ->
-                { entity | x = tileLeft - 16, direction = Left }
+                entity
+                    |> Entity.updateX (tileLeft - 16)
+                    |> Entity.changeDirection Left
 
             FromRight ->
-                { entity | x = tileRight + 1, direction = Right }
+                entity
+                    |> Entity.updateX (tileRight + 1)
+                    |> Entity.changeDirection Right
 
 
 changeAction : Time -> Entity -> Entity
@@ -91,19 +101,4 @@ changeAction dt goomba =
 move : Time -> Entity -> Entity
 move dt goomba =
     goomba
-        |> updateHorizontalVelocity walkingSpeed
-
-
-changeDirection : Direction -> Entity -> Entity
-changeDirection direction goomba =
-    { goomba | direction = direction }
-
-
-updateHorizontalVelocity : Float -> Entity -> Entity
-updateHorizontalVelocity velocity goomba =
-    { goomba | horizontalVelocity = velocity }
-
-
-updateVerticalVelocity : Float -> Entity -> Entity
-updateVerticalVelocity velocity goomba =
-    { goomba | verticalVelocity = velocity }
+        |> Entity.updateHorizontalVelocity walkingSpeed

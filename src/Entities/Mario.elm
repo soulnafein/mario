@@ -69,16 +69,26 @@ resolveCollision collisionType tile entity =
     in
         case collisionType of
             FromTop ->
-                { entity | verticalVelocity = 0, y = tileTop - 16, oldY = tileTop - 16, jumpDistance = 0 }
+                entity
+                    |> Entity.updateVerticalVelocity 0
+                    |> Entity.updateY (tileTop - 16)
+                    |> Entity.updateJumpDistance 0
 
             FromBottom ->
-                { entity | verticalVelocity = -1, y = tileBottom + 1, jumpDistance = 0 }
+                entity
+                    |> Entity.updateVerticalVelocity -1
+                    |> Entity.updateY (tileBottom + 1)
+                    |> Entity.updateJumpDistance 0
 
             FromLeft ->
-                { entity | horizontalVelocity = 0, x = tileLeft - 16 }
+                entity
+                    |> Entity.updateHorizontalVelocity 0
+                    |> Entity.updateX (tileLeft - 16)
 
             FromRight ->
-                { entity | horizontalVelocity = 0, x = tileRight + 1 }
+                entity
+                    |> Entity.updateHorizontalVelocity 0
+                    |> Entity.updateX (tileRight + 1)
 
 
 changeAction : Time -> Entity -> Entity
@@ -99,13 +109,16 @@ changeAction dt mario =
             else
                 ( Standing, 0 )
     in
-        { mario | action = action, actionDuration = duration }
+        mario
+            |> Entity.updateAction action
+            |> Entity.updateActionDuration duration
 
 
 applyJumpLimit : Entity -> Entity
 applyJumpLimit mario =
     if mario.jumpDistance > jumpLimit then
-        { mario | verticalVelocity = -1 }
+        mario
+            |> Entity.updateVerticalVelocity -1
     else
         mario
 
@@ -114,8 +127,8 @@ applyLeftMovement : Time -> Keys -> Entity -> Entity
 applyLeftMovement dt keys mario =
     if keys.leftPressed then
         mario
-            |> updateHorizontalVelocity walkingSpeed
-            |> changeDirection Left
+            |> Entity.updateHorizontalVelocity walkingSpeed
+            |> Entity.changeDirection Left
     else
         mario
 
@@ -124,8 +137,8 @@ applyRightMovement : Time -> Keys -> Entity -> Entity
 applyRightMovement dt keys mario =
     if keys.rightPressed then
         mario
-            |> updateHorizontalVelocity walkingSpeed
-            |> changeDirection Right
+            |> Entity.updateHorizontalVelocity walkingSpeed
+            |> Entity.changeDirection Right
     else
         mario
 
@@ -138,14 +151,6 @@ applyJump dt keys mario =
 
         newVelocity =
             (1 / logBase 5 (mario.jumpDistance + 2)) * jumpSpeed
-
-        isNotFalling =
-            case mario.action of
-                Falling ->
-                    False
-
-                _ ->
-                    True
 
         onTheGround =
             not (List.member mario.action [ Jumping, Falling ])
@@ -160,21 +165,7 @@ applyJump dt keys mario =
             { mario | justJumped = justJumped }
     in
         if keys.jumpPressed && (mario.action == Jumping || not mario.justJumped) then
-            updatedMario |> updateVerticalVelocity newVelocity
+            updatedMario
+                |> Entity.updateVerticalVelocity newVelocity
         else
             updatedMario
-
-
-changeDirection : Direction -> Entity -> Entity
-changeDirection direction mario =
-    { mario | direction = direction }
-
-
-updateHorizontalVelocity : Float -> Entity -> Entity
-updateHorizontalVelocity velocity mario =
-    { mario | horizontalVelocity = velocity }
-
-
-updateVerticalVelocity : Float -> Entity -> Entity
-updateVerticalVelocity velocity mario =
-    { mario | verticalVelocity = velocity }

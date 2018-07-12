@@ -20,6 +20,7 @@ create =
     , verticalVelocity = 0
     , jumpDistance = 0
     , justJumped = False
+    , jumpReleased = True
     , type_ = Mario
     }
 
@@ -161,10 +162,18 @@ applyJump dt keys mario =
             else
                 True
 
+        jumpReleased =
+            if onTheGround && keys.jumpPressed then
+                False
+            else if not keys.jumpPressed then
+                True
+            else
+                mario.jumpReleased
+
         updatedMario =
-            { mario | justJumped = justJumped }
+            { mario | justJumped = justJumped, jumpReleased = jumpReleased }
     in
-        if keys.jumpPressed && (mario.action == Jumping || not mario.justJumped) then
+        if keys.jumpPressed && ((mario.action == Jumping && not jumpReleased) || not mario.justJumped) then
             updatedMario
                 |> Entity.updateVerticalVelocity newVelocity
         else

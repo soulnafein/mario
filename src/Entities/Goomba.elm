@@ -19,6 +19,7 @@ create x y =
     , verticalVelocity = 0
     , jumpDistance = 0
     , justJumped = False
+    , jumpReleased = True
     , type_ = Goomba
     }
 

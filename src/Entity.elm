@@ -29,6 +29,7 @@ type alias Entity =
     , verticalVelocity : Float
     , jumpDistance : Float
     , justJumped : Bool
+    , jumpReleased : Bool
     , type_ : EntityType
     }
 

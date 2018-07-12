@@ -1,4 +1,4 @@
-module Entities exposing (Entity, EntityType(..), Action(..), Direction(..))
+module Entity exposing (Entity, EntityType(..), Action(..), Direction(..))
 
 
 type alias Entity =

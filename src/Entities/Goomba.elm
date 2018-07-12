@@ -1,7 +1,7 @@
 module Entities.Goomba exposing (..)
 
 import Time exposing (Time)
-import Entities exposing (Entity, EntityType(Goomba), Direction(..), Action(..))
+import Entity exposing (Entity, EntityType(Goomba), Direction(..), Action(..))
 import Physics.CollisionType exposing (CollisionType(..))
 import Tile exposing (Tile)
 

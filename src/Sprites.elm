@@ -6,7 +6,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Messages exposing (Msg)
 import Time exposing (Time)
-import Entities exposing (EntityType, Action, Direction, Entity)
+import Entity exposing (EntityType, Action, Direction, Entity)
 import Viewport exposing (Viewport)
 
 
@@ -43,10 +43,10 @@ drawCharacter x y offset entityType action actionDuration direction characterSpr
     let
         spriteName =
             case entityType of
-                Entities.Mario ->
+                Entity.Mario ->
                     "mario"
 
-                Entities.Goomba ->
+                Entity.Goomba ->
                     "goomba"
 
         viewbox =

@@ -1,6 +1,6 @@
 module Data.Sprites exposing (characters, tiles)
 
-import Entities exposing (Action(..), Direction(..))
+import Entity exposing (Action(..), Direction(..))
 import Sprites exposing (CharacterSprites, TileSprites)
 import Array
 

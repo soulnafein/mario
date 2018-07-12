@@ -2,7 +2,7 @@ module Data.Level exposing (tilesData, enemiesData)
 
 import Dict exposing (Dict)
 import Exts.Dict exposing (groupBy)
-import Entities exposing (Entity)
+import Entity exposing (Entity)
 import Entities.Goomba as Goomba
 import Tile exposing (Tile)
 

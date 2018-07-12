@@ -2,7 +2,7 @@ module Entities.Mario exposing (..)
 
 import Keys exposing (Keys)
 import Time exposing (Time)
-import Entities exposing (Entity, EntityType(Mario), Direction(..), Action(..))
+import Entity exposing (Entity, EntityType(Mario), Direction(..), Action(..))
 import Physics.CollisionType exposing (CollisionType(..))
 import Tile exposing (Tile)
 

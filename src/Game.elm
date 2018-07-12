@@ -3,7 +3,7 @@ module Game exposing (State, init, update, view)
 import Level
 import Viewport
 import Time exposing (Time)
-import Entities exposing (Entity)
+import Entity exposing (Entity)
 import Keys
 import Sprites exposing (CharacterSprites)
 import Svg exposing (Svg, svg, rect)
@@ -110,7 +110,7 @@ view state =
 getMario : List Entity -> Entity
 getMario entities =
     entities
-        |> List.filter (\e -> e.type_ == Entities.Mario)
+        |> List.filter (\e -> e.type_ == Entity.Mario)
         |> List.head
         |> Maybe.withDefault Mario.create
 

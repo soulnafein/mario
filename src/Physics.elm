@@ -2,7 +2,7 @@ module Physics exposing (update)
 
 import Time exposing (Time)
 import Tile exposing (Tile)
-import Entities exposing (Entity, Direction(..), Action(..))
+import Entity exposing (Entity, Direction(..), Action(..))
 import Entities.Entity
 import Physics.CollisionType exposing (CollisionType(..))
 

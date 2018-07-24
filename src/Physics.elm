@@ -37,12 +37,14 @@ applyFriction dt entity =
             else
                 entity.horizontalVelocity - (friction * dt)
     in
-        { entity | horizontalVelocity = horizontalVelocity }
+        entity
+            |> Entity.updateHorizontalVelocity horizontalVelocity
 
 
 applyGravity : Time -> Entity -> Entity
 applyGravity dt entity =
-    { entity | verticalVelocity = entity.verticalVelocity - (gravity * dt) }
+    entity
+        |> Entity.updateVerticalVelocity (entity.verticalVelocity - (gravity * dt))
 
 
 type CollisionDirection
@@ -146,16 +148,11 @@ updateHorizontalPosition dt entity =
         horizontalMovementAmount =
             entity.horizontalVelocity * dt
 
-        oldX =
-            entity.x
-
         x =
             applyHorizontalMovement entity.direction entity.x horizontalMovementAmount
     in
-        { entity
-            | x = x
-            , oldX = oldX
-        }
+        entity
+            |> Entity.updateX x
 
 
 applyHorizontalMovement : Direction -> Float -> Float -> Float
@@ -174,9 +171,6 @@ updateVerticalPosition dt entity =
         verticalMovementAmount =
             entity.verticalVelocity * dt
 
-        oldY =
-            entity.y
-
         y =
             entity.y - verticalMovementAmount
 
@@ -191,8 +185,6 @@ updateVerticalPosition dt entity =
                 _ ->
                     entity.jumpDistance
     in
-        { entity
-            | y = y
-            , oldY = oldY
-            , jumpDistance = jumpDistance
-        }
+        entity
+            |> Entity.updateY y
+            |> Entity.updateJumpDistance jumpDistance

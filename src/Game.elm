@@ -1,7 +1,7 @@
 module Game exposing (State, init, update, view)
 
 import Level
-import Viewport
+import Viewport exposing (Viewport)
 import Time exposing (Time)
 import Entity exposing (Entity)
 import Keys
@@ -64,7 +64,7 @@ update dt state =
             spawnedEntities ++ state.entities
 
         updatedEntities =
-            List.map (updateEntities dt keys solidTiles) entities
+            List.map (updateEntities dt keys solidTiles state.viewport) entities
 
         viewport =
             Viewport.update mario.x mario.horizontalVelocity dt state.viewport
@@ -80,11 +80,11 @@ update dt state =
         }
 
 
-updateEntities : Time -> Keys.Keys -> List Tile -> Entity -> Entity
-updateEntities dt keys solidTiles entity =
+updateEntities : Time -> Keys.Keys -> List Tile -> Viewport -> Entity -> Entity
+updateEntities dt keys solidTiles viewport entity =
     entity
         |> Entities.Entity.update dt keys solidTiles
-        |> Physics.update dt solidTiles
+        |> Physics.update dt solidTiles viewport
 
 
 spawnEntities : Float -> Float -> List Entity -> List Entity

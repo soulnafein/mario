@@ -2,9 +2,10 @@ module Physics exposing (update)
 
 import Time exposing (Time)
 import Tile exposing (Tile)
-import Entity exposing (Entity, Direction(..), Action(..))
+import Entity exposing (Entity, Direction(..), Action(..), EntityType(Mario))
 import Entities.Entity
 import Physics.CollisionType exposing (CollisionType(..))
+import Viewport exposing (Viewport)
 
 
 friction : Float
@@ -17,8 +18,8 @@ gravity =
     1000
 
 
-update : Time -> List Tile -> Entity -> Entity
-update dt solidTiles entity =
+update : Time -> List Tile -> Viewport -> Entity -> Entity
+update dt solidTiles viewport entity =
     entity
         |> applyFriction dt
         |> applyGravity dt
@@ -26,6 +27,7 @@ update dt solidTiles entity =
         |> checkCollisions Vertical solidTiles
         |> updateHorizontalPosition dt
         |> checkCollisions Horizontal solidTiles
+        |> checkBackWallCollision viewport
 
 
 applyFriction : Time -> Entity -> Entity
@@ -93,6 +95,26 @@ checkCollision direction tile entity =
     in
         if hasCollided then
             applyCollision direction tile entity
+        else
+            entity
+
+
+checkBackWallCollision : Viewport -> Entity -> Entity
+checkBackWallCollision viewport entity =
+    let
+        hasCollided =
+            (entity.x < viewport.x) && (entity.type_ == Mario)
+
+        -- A pseudo-tile to reuse function below
+        backWallTile =
+            { x = viewport.x - 15
+            , y = entity.y
+            , name = "Back Wall"
+            , isSolid = True
+            }
+    in
+        if hasCollided then
+            Entities.Entity.resolveCollision FromRight backWallTile entity
         else
             entity
 
